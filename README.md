@@ -386,7 +386,7 @@ orbit_sim/
 │   ├── experiment.launch.py            #   실험 시나리오
 │   ├── gco_test.launch.py             #   GCO 제어 테스트
 │   ├── gco_cam_test.launch.py         #   GCO 카메라 테스트
-│   ├── gco_3d_test.py                 #   GCO 3D 테스트
+│   ├── gco_3d_test.py                 #   GCO 3D 시각화 스크립트 (launch 파일 아님)
 │   ├── pnp_test.launch.py            #   PnP 포즈 추정 테스트
 │   ├── sat.launch.py                  #   위성 기본
 │   ├── sat2.launch.py                 #   위성 2 (Canadarm)
@@ -722,46 +722,14 @@ World SDF에서 중력을 0으로 설정:
 
 ## 13. 향후 확장 방향
 
-현재 시뮬레이션은 Gazebo 정적 무중력 환경에서의 듀얼암 도킹 시뮬레이션이며, GAiMSat-1 미션을 위해 다음 확장을 고려:
+| 항목 | 설명 | 상태 |
+|------|------|------|
+| Space_SLAM 필터 이식 | MATLAB에서 검증된 EKF/UKF/PF 기반 항법 필터를 ROS 2 노드로 이식 | 예정 |
+| 3DGS 밀집 표현 | 3D Gaussian Splatting 기반 밀집 장면 표현을 ROS 2에 통합 | 예정 |
+| 자율 도킹 시퀀스 | 비전 기반 자세추정 → GNC → 암 제어 파이프라인 통합 | 예정 |
+| 실제 하드웨어 연동 | 에어베어링 테스트베드에서의 실험 검증 | 예정 |
 
-### 13.1 궤도역학 연동
-- Gazebo 커스텀 System 플러그인(C++)으로 CW/HCW 방정식 기반 외력 주입
-- 또는 외부 궤도 전파기 ROS 2 노드 + Gazebo pose 동기화
-- MATLAB에서 구현한 J2 섭동 포함 궤도 전파기를 Python/C++ 노드로 포팅
-
-### 13.2 센서 시뮬레이션
-- 근접 항법용 카메라 센서 (실제 intrinsic/distortion 파라미터)
-- IMU 센서 (bias, noise 모델 포함)
-- Star Tracker 시뮬레이션 (별 배경 skybox + 별 카탈로그)
-
-### 13.3 Target 위성 모델
-- 비협조 Target 위성 (텀블링 초기 각속도 부여)
-- 도킹 포트/그래플 포인트 형상
-- 비대칭 관성 텐서 설정
-
-### 13.4 조명 환경
-- 궤도 위치에 따른 동적 태양광 방향 변경 플러그인
-- Eclipse 시뮬레이션 (태양광 on/off)
-- 지구 반사광(Earthshine) 근사
-
-### 13.5 추천 아키텍처
-```
-[Orbit Propagator Node]     [Sensor Sim Node]
-   (J2, CW equations)          (Camera, IMU, ST)
-         │                           │
-         ▼                           ▼
-   /chaser_state_true          /camera/image
-   /target_state_true          /imu/data
-         │                           │
-         ▼                           ▼
-[Gazebo Harmonic] ◄── gz_bridge ──► [ROS 2 Topics]
-   - Visual rendering                    │
-   - Contact physics (docking)           ▼
-   - Joint dynamics (arm)         [Nav/Control Nodes]
-                                    - ESKF
-                                    - MPPI Controller
-                                    - Path Planner
-```
+> 연관 프로젝트: `D:\space_vision\Space_SLAM` (Windows, MATLAB)에서 알고리즘 연구 → orbit_sim에서 ROS 2 구현
 
 ---
 
@@ -773,3 +741,7 @@ World SDF에서 중력을 0으로 설정:
 - [ros_gz 브리지 문서](https://github.com/gazebosim/ros_gz)
 - [WSL2 GPU 가속 설정](https://learn.microsoft.com/windows/wsl/tutorials/gpu-compute)
 - [spaceros_gz_demos (NASA Space ROS)](https://github.com/david-dorf/spaceros_gz_demos)
+
+---
+
+*최종 업데이트: 2026-02-23*
