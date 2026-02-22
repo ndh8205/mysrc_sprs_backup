@@ -152,10 +152,29 @@ sudo apt install -y \
   ros-jazzy-slam-toolbox \
   ros-jazzy-navigation2 \
   ros-jazzy-nav2-bringup \
-  ros-jazzy-rmw-fastrtps-cpp
+  ros-jazzy-rmw-fastrtps-cpp \
+  ros-jazzy-cv-bridge
 ```
 
-### 4.3 GPU 사용자 그룹 추가
+### 4.3 Python 의존성
+orbit_sim 노드들이 사용하는 Python 패키지:
+```bash
+sudo apt install -y \
+  python3-numpy \
+  python3-scipy \
+  python3-matplotlib \
+  python3-opencv \
+  python3-tk
+```
+
+| 패키지 | 사용처 |
+|--------|--------|
+| `numpy`, `scipy` | imu_visualizer (쿼터니언 변환, Rotation) |
+| `matplotlib` | imu_visualizer (실시간 플롯) |
+| `python3-tk` | pose_control_camtest (Tkinter GUI) |
+| `python3-opencv` | aruco_detector, aruco_simulator, gazebo_aruco_controller |
+
+### 4.4 GPU 사용자 그룹 추가
 ```bash
 sudo usermod -aG render $USER
 ```
