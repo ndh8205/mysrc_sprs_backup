@@ -3,6 +3,7 @@
 **환경:** Windows 10/11 (WSL2), Ubuntu 24.04, NVIDIA GPU  
 **목표:** Docker 없이 ROS 2 Jazzy + Gazebo Harmonic 환경에서 구축  
 
+### 학교 네트워크에서 가끔 ROS2와 Gazebo의 저장소 키와 저장소 링크가 안먹힐때가 있으므로 그때는 외부 인터넷환경을 이용할것
 ---
 
 ## 📌 목차
