@@ -149,6 +149,7 @@ sudo apt install -y \
 ```bash
 sudo apt install -y \
   ros-jazzy-rosbridge-server \
+  ros-jazzy-web-video-server \
   ros-jazzy-slam-toolbox \
   ros-jazzy-navigation2 \
   ros-jazzy-nav2-bringup \
