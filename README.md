@@ -1,9 +1,7 @@
 # 🛰️ WSL2 Ubuntu 24.04에서 위성 근접운용 시뮬레이션 재구축 가이드
 
 **환경:** Windows 10/11 (WSL2), Ubuntu 24.04, NVIDIA GPU  
-**목표:** Docker 없이 ROS 2 Jazzy + Gazebo Harmonic 환경에서 KARI 듀얼암 위성 도킹 시뮬레이션(`orbit_sim`)을 재구축  
-**전제조건:** `orbit_sim` 패키지 백업본 보유  
-**비고:** Space ROS 레포(`demos`, `simulation`, `qt_gui_core`, `ros_gz` 등) 소스 클론은 불필요. orbit_sim 내부에 필요한 모델이 모두 포함되어 있으며, 나머지 의존성은 전부 apt로 설치. 초기 구축 시 `demo_manual_pkgs.repos`로 일괄 클론했던 패키지들은 demos 빌드용이었으며, orbit_sim 단독 사용 시 불필요하고 오히려 apt 패키지와 충돌을 유발함.
+**목표:** Docker 없이 ROS 2 Jazzy + Gazebo Harmonic 환경에서 구축  
 
 ---
 
@@ -79,7 +77,7 @@ sudo apt update
 sudo apt install -y ros-jazzy-desktop python3-colcon-common-extensions python3-rosdep python3-vcstool
 ```
 
-### 2.3 추가 개발 도구 (선택)
+### 2.3 추가 개발 도구
 ```bash
 sudo apt install -y python3-pip python3-colcon-mixin python3-flake8 python3-pytest-cov \
   python3-rosinstall-generator ros-jazzy-ament-* ros-jazzy-ros-testing ros-jazzy-eigen3-cmake-module
