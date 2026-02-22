@@ -221,8 +221,6 @@ sudo apt install --reinstall libegl-mesa0 libgl1-mesa-dri
 
 ## 6. 워크스페이스 구축 및 빌드
 
-> **핵심:** src에 `orbit_sim`만 넣으면 됨. 초기 구축 시 `demo_manual_pkgs.repos`로 클론했던 `demos`, `simulation`, `qt_gui_core`, `ros_gz`, `vision_msgs`, `gps_msgs`는 Space ROS demos 빌드용 의존성이었으며 orbit_sim 구동에는 불필요. 오히려 apt 패키지와 소스 패키지가 충돌하여 `--allow-overriding` 같은 우회가 필요했음.
-
 ### 6.1 워크스페이스 생성 및 orbit_sim 클론
 ```bash
 mkdir -p ~/space_ros_ws/src
