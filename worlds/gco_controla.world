@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="space_world">
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>6.71 1.43 2.29 0 0.51 2.94</camera_pose>
+      </plugin>
+
+    <plugin filename="gz-sim-lens-flare-system"
+            name="gz::sim::systems::LensFlare">
+      <scale>3.0</scale>
+      <color>1.6 1.5 1.3</color>
+      <occlusion_steps>0</occlusion_steps><!-- 우주: 가림 제거 -->
+      <light_name>sun</light_name>
+    </plugin>   
+      
+      <plugin filename="ImageDisplay" name="Image Display">
+        <gz-gui>
+          <title>Camera View</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>controla_prototype_1/camera</topic>
+        <refresh_rate_hz>60</refresh_rate_hz>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+      <ambient>0.1 0.1 0.1 1</ambient>
+
+      <postprocessing>
+        <bloom>
+          <threshold>0.55</threshold>
+          <size>0.9</size>
+        </bloom>
+      </postprocessing>    
+    </scene>
+
+    <!-- 중력 설정 (우주 환경 유지) -->
+    <gravity>0 0 0</gravity>
+
+    <!-- 메인 태양 광원 (강한 directional light) -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>1.0 0.95 0.8 1</diffuse>
+      <specular>1.0 1.0 1.0 1</specular>
+      <intensity>5</intensity>
+      <direction>0 0 -1</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <include>
+      <uri>model://controla_prototype_1</uri>
+      <name>controla_prototype_1</name>
+      <pose>0 0 0 0 1.5708 0</pose>
+    </include>
+
+    <include>
+      <uri>model://controla_prototype_2</uri>
+      <name>controla_prototype_2</name>
+      <pose>1 0 0 0 -1.5708 0</pose>
+    </include>
+
+    <include>
+      <uri>model://earth</uri>
+      <name>earth</name>
+      <pose>9.3 222.6 -127.93 0.58 -0.35 -0.22</pose>
+    </include>
+
+    <!-- 시스템 플러그인 -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors"></plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics"></plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="libgz-sim-imu-system.so" name="gz::sim::systems::Imu"/>
+  </world>
+</sdf>

@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="nasa_satellite4">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+
+    <link name="nasa_satellite_link">
+      <inertial>
+        <mass>2.6</mass>
+        <inertia>
+          <ixx>0.01</ixx>
+          <iyy>0.01</iyy>
+          <izz>0.004</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://nasa_satellite/meshes/nasa_satellite.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://nasa_satellite/meshes/nasa_satellite.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+
+      <sensor name="imu_sensor" type="imu">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <visualize>false</visualize>
+        <topic>nasa_satellite4/imu</topic>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </link>
+
+    <link name="stereo_mount_link">
+      <pose relative_to="nasa_satellite_link">-0.01677 0.5224 0.1269 0 0 1.5708</pose>
+    </link>
+    <joint name="stereo_mount_joint" type="fixed">
+      <parent>nasa_satellite_link</parent>
+      <child>stereo_mount_link</child>
+    </joint>
+
+    <link name="left_camera_link">
+      <pose relative_to="stereo_mount_link">0 -0.06 0 0 0 0</pose>
+      <sensor name="left_stereo_camera" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>false</visualize>
+        <topic>/stereo/left/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="left_camera_joint" type="fixed">
+      <parent>stereo_mount_link</parent>
+      <child>left_camera_link</child>
+    </joint>
+
+    <link name="right_camera_link">
+      <pose relative_to="stereo_mount_link">0 0.06 0 0 0 0</pose>
+      <sensor name="right_stereo_camera" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>false</visualize>
+        <topic>/stereo/right/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="right_camera_joint" type="fixed">
+      <parent>stereo_mount_link</parent>
+      <child>right_camera_link</child>
+    </joint>
+    
+  </model>
+</sdf>

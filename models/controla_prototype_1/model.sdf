@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="controla_prototype_1">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+    <link name="controla_prototype_1_link">
+      <inertial>
+        <mass>24.0</mass>
+        <inertia>
+          <ixx>0.185</ixx>
+          <iyy>0.144</iyy>
+          <izz>0.061</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://controla_prototype_1/meshes/controla_sat_prototype_1.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://controla_prototype_1/meshes/controla_sat_prototype_1.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <sensor name="controla_prototype_1" type="camera">
+        <pose>0.0265 0.03 0.1 -1.5708 -1.5708 0</pose>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>true</visualize>
+        <topic>controla_prototype_1/camera</topic>
+      </sensor>
+
+      <sensor name="imu_sensor" type="imu">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <visualize>false</visualize>
+        <topic>nasa_satellite2/imu</topic>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>1.7e-2</stddev>
+                <bias_mean>0.1</bias_mean>
+                <bias_stddev>0.001</bias_stddev>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>    
+
+      <!-- 수정된 3D LiDAR 센서: 카메라와 동일한 위치/자세 -->
+      <sensor name="lidar_3d" type="gpu_lidar">
+        <pose>-0.11677 0.5224 0.2269 0 0 1.5708</pose> <!-- 카메라와 동일 -->
+        <topic>controla_prototype_1/lidar/points</topic>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.523599</min_angle> <!-- -90도 -->
+              <max_angle>0.523599</max_angle> <!-- +90도 -->
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.523599</min_angle> <!-- -15도 -->
+              <max_angle>0.523599</max_angle> <!-- +15도 -->
+            </vertical>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>12.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+      </sensor>
+
+    </link>
+  </model>
+</sdf>

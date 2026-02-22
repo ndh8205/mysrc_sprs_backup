@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <model name="airbearing_satellite">
+    <link name="base_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>19</mass>
+        <inertia>
+          <ixx>0.23</ixx>
+          <iyy>0.23</iyy>
+          <izz>0.453247</izz>
+        </inertia>
+      </inertial>
+      
+      <!-- 메시 비주얼 -->
+      <visual name="body_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://airbearing_satellite/meshes/airbearing_satellite.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 충돌 형상 -->
+      <collision name="body_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://airbearing_satellite/meshes/airbearing_satellite.dae</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0</mu>
+              <mu2>0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1e7</kp>
+              <kd>1.0</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.0</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      
+      <!-- IMU 센서 -->
+      <sensor name="imu" type="imu">
+        <always_on>true</always_on>
+        <update_rate>144</update_rate>
+        <topic>airbearing_sat/imu</topic>
+        <pose>0 0 0 0 0 0</pose>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0001</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0001</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0001</stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.001</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.001</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.001</stddev>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+      
+      <!-- 8개 추력기 - 원뿔 모양 (비주얼은 그대로 유지) -->
+      <!-- 추력기 1: Y+ 방향으로 분사 (후진) -->
+      <visual name="thruster_1">
+        <pose>0.1 0.2025 0.156 1.57 0 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0.0 1</ambient>
+          <diffuse>1.0 0.0 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 2: X+ 방향으로 분사 (우측 이동) -->
+      <visual name="thruster_2">
+        <pose>0.2025 0.1 0.156 0 1.57 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.0 1</ambient>
+          <diffuse>1.0 0.5 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 3: X+ 방향으로 분사 (우측 이동) -->
+      <visual name="thruster_3">
+        <pose>0.2025 -0.1 0.156 0 1.57 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>1.0 0.5 0.0 1</ambient>
+          <diffuse>1.0 0.5 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 4: Y- 방향으로 분사 (전진) -->
+      <visual name="thruster_4">
+        <pose>0.1 -0.2025 0.156 -1.57 0 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.0 0.0 1.0 1</ambient>
+          <diffuse>0.0 0.0 1.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 5: Y- 방향으로 분사 (전진) -->
+      <visual name="thruster_5">
+        <pose>-0.1 -0.2025 0.156 -1.57 0 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.0 0.0 1.0 1</ambient>
+          <diffuse>0.0 0.0 1.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 6: X- 방향으로 분사 (좌측 이동) -->
+      <visual name="thruster_6">
+        <pose>-0.2025 -0.1 0.156 0 -1.57 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0.0 1</ambient>
+          <diffuse>0.0 1.0 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 7: X- 방향으로 분사 (좌측 이동) -->
+      <visual name="thruster_7">
+        <pose>-0.2025 0.1 0.156 0 -1.57 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.0 1.0 0.0 1</ambient>
+          <diffuse>0.0 1.0 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      
+      <!-- 추력기 8: Y+ 방향으로 분사 (후진) -->
+      <visual name="thruster_8">
+        <pose>-0.1 0.2025 0.156 1.57 0 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.015</radius>
+            <length>0.03</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0.0 1</ambient>
+          <diffuse>1.0 0.0 0.0 1</diffuse>
+          <specular>0.7 0.7 0.7 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    
+    <!-- 포즈 퍼블리셔 플러그인 (모델 레벨) -->
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <publish_link_pose>true</publish_link_pose>
+      <publish_sensor_pose>false</publish_sensor_pose>
+      <publish_collision_pose>false</publish_collision_pose>
+      <publish_visual_pose>false</publish_visual_pose>
+      <publish_nested_model_pose>false</publish_nested_model_pose>
+      <update_frequency>30</update_frequency>
+    </plugin>
+    
+    <!-- SimpleThruster 플러그인들 -->
+    <!-- 추력기 1: -Y 방향 추력 (후진) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_1</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>0 -1 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 2: -X 방향 추력 (우측 이동) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_2</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>-1 0 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 3: -X 방향 추력 (우측 이동) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_3</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>-1 0 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 4: +Y 방향 추력 (전진) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_4</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>0 1 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 5: +Y 방향 추력 (전진) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_5</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>0 1 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 6: +X 방향 추력 (좌측 이동) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_6</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>1 0 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 7: +X 방향 추력 (좌측 이동) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_7</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>1 0 0</thrust_axis>
+    </plugin>
+    
+    <!-- 추력기 8: -Y 방향 추력 (후진) -->
+    <plugin filename="SimpleThruster" name="simple_space_thruster::SimpleThruster">
+      <link_name>base_link</link_name>
+      <topic>/airbearing_sat1/thruster_8</topic>
+      <max_thrust>0.75</max_thrust>
+      <thrust_delay>0.01</thrust_delay>
+      <thrust_axis>0 -1 0</thrust_axis>
+    </plugin>
+  </model>
+</sdf>

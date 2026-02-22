@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="space_world">
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>6.71 1.43 2.29 0 0.51 2.94</camera_pose>
+      </plugin>
+      
+      <plugin filename="ImageDisplay" name="Image Display">
+        <gz-gui>
+          <title>Camera View</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>nasa_satellite2/camera</topic>
+        <refresh_rate_hz>60</refresh_rate_hz>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <!-- 중력 설정 (우주 환경 유지) -->
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.05 0.05 0.05 1</specular>
+      <direction>0 0 -1</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <include>
+      <uri>model://nasa_satellite</uri>
+      <name>nasa_satellite</name>
+      <pose>5.47757 -0.01567 0 0 0 1.562</pose>
+    </include>
+
+    <!--include>
+      <uri>model://nasa_satellite2</uri>
+      <name>nasa_satellite2</name>
+      <pose>0 0 0 0 0 0</pose>
+    </include-->
+
+    <include>
+      <uri>model://nasa_satellite3</uri>
+      <name>nasa_satellite3</name>
+      <pose>-2.72427 4.75224 0 0 0 3.6694</pose>
+    </include>
+
+    <include>
+      <uri>model://nasa_satellite4</uri>
+      <name>nasa_satellite4</name>
+      <pose>-2.75333 -4.73547 0 0 0 5.7594</pose>
+    </include>
+
+    <include>
+      <uri>model://earth</uri>
+      <name>earth</name>
+      <pose>9.3 222.6 -127.93 0.58 -0.35 -0.22</pose>
+      <!--pose>93.56 2226.08 -1279.39 0.58 -0.35 -0.22</pose-->
+    </include>
+
+    <!-- 시스템 플러그인 -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors"></plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics"></plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="libgz-sim-imu-system.so" name="gz::sim::systems::Imu"/>
+  </world>
+</sdf>

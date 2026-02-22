@@ -1,0 +1,1217 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="kari_dual_arm">
+    <self_collide>true</self_collide>
+
+    <!-- ========== SATELLITE BODY ========== -->
+    <link name="satellite_body">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>500</mass>
+        <inertia>
+          <ixx>260</ixx>
+          <ixy>-0.2</ixy>
+          <ixz>0.6</ixz>
+          <iyy>280</iyy>
+          <iyz>4</iyz>
+          <izz>170</izz>
+        </inertia>
+      </inertial>
+
+      <!-- Satellite Body (황금색) -->
+      <visual name="satellite_body_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/satellite_body.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.85 0.65 0.13 1</ambient>
+          <diffuse>0.85 0.65 0.13 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+        </material>
+      </visual>
+
+      <!-- Satellite Panel (어두운 파란색) -->
+      <visual name="satellite_panel_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/satellite_panel.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.2 0.5 1</ambient>
+          <diffuse>0.1 0.2 0.5 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+      </visual>
+
+      <!-- Satellite Front (흰색) -->
+      <visual name="satellite_front_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/satellite_front.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.95 0.95 0.95 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      <!-- Collision: Body (중앙 본체) -->
+      <collision name="satellite_body_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 2.4 2.4</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Collision: Panel Left (+Y) -->
+      <collision name="satellite_panel_L_collision">
+        <pose>0 3.05 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 3.05 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Collision: Front (전방부 전체) -->
+      <collision name="satellite_front_collision">
+        <pose>1.575 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.8 1.8 1.8</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <collision name="satellite_panel_R_collision">
+        <pose>0 -3.05 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 3.05 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- ========== SENSORS ========== -->
+      
+      <!-- IMU (Gyro only) -->
+      <sensor name="servicer_imu" type="imu">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <visualize>false</visualize>
+        <topic>/servicer/imu</topic>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>2e-4</stddev>
+                <bias_mean>0.0000075</bias_mean>
+                <bias_stddev>0.0000008</bias_stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+        </imu>
+      </sensor>
+
+      <!-- Docking Camera Left (+Y side) -->
+      <sensor name="docking_cam_L" type="camera">
+        <pose>1.9 0.7 0 0 0 0</pose>
+        <camera>
+          <horizontal_fov>1.1868</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>true</visualize>
+        <topic>/servicer/docking_cam_L/image_raw</topic>
+      </sensor>
+
+      <!-- Docking Camera Right (-Y side) -->
+      <sensor name="docking_cam_R" type="camera">
+        <pose>1.9 -0.7 0 0 0 0</pose>
+        <camera>
+          <horizontal_fov>1.1868</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>true</visualize>
+        <topic>/servicer/docking_cam_R/image_raw</topic>
+      </sensor>
+
+      <!-- WFOV Left (front top, outer) -->
+      <sensor name="wfov_L" type="camera">
+        <pose>2.0 0.3 0.8 0 0 0</pose>
+        <camera>
+          <horizontal_fov>0.3403</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>5000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/servicer/wfov_L/image_raw</topic>
+      </sensor>
+
+      <!-- NFOV Left (front top, inner) -->
+      <sensor name="nfov_L" type="camera">
+        <pose>2.0 0.1 0.8 0 0 0</pose>
+        <camera>
+          <horizontal_fov>0.1</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>1.0</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/servicer/nfov_L/image_raw</topic>
+      </sensor>
+
+      <!-- NFOV Right (front top, inner) -->
+      <sensor name="nfov_R" type="camera">
+        <pose>2.0 -0.1 0.8 0 0 0</pose>
+        <camera>
+          <horizontal_fov>0.1</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>1.0</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/servicer/nfov_R/image_raw</topic>
+      </sensor>
+
+      <!-- WFOV Right (front top, outer) -->
+      <sensor name="wfov_R" type="camera">
+        <pose>2.0 -0.3 0.8 0 0 0</pose>
+        <camera>
+          <horizontal_fov>0.3403</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>5000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/servicer/wfov_R/image_raw</topic>
+      </sensor>
+    </link>
+
+    <!-- ################################################################## -->
+    <!-- ==================== LEFT ARM (+Y) ==================== -->
+    <!-- ################################################################## -->
+
+    <!-- ARM_L BASE -->
+    <link name="arm_L_base">
+      <pose relative_to="arm_L_mount">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00000965 -0.00003686 0.07767998 0 0 0</pose>
+        <mass>3.3436</mass>
+        <inertia>
+          <ixx>0.00751250</ixx>
+          <ixy>-0.00000006</ixy>
+          <ixz>0.00000167</ixz>
+          <iyy>0.00752435</iyy>
+          <iyz>-0.00000111</iyz>
+          <izz>0.00631252</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_base_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_base_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_mount" type="fixed">
+      <pose relative_to="satellite_body">1.9 0.9 0 -1.5708 0 0</pose>
+      <parent>satellite_body</parent>
+      <child>arm_L_base</child>
+    </joint>
+
+    <!-- ARM_L LINK1 -->
+    <link name="arm_L_link1">
+      <pose relative_to="arm_L_joint1">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00026892 -0.08021331 0.09358186 0 0 0</pose>
+        <mass>2.1207</mass>
+        <inertia>
+          <ixx>0.02665777</ixx>
+          <ixy>0.00012951</ixy>
+          <ixz>-0.00002113</ixz>
+          <iyy>0.00821363</iyy>
+          <iyz>-0.00194208</iyz>
+          <izz>0.02512228</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link1_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link1_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint1" type="revolute">
+      <pose relative_to="arm_L_base">0 0 0.094 0 0 0</pose>
+      <parent>arm_L_base</parent>
+      <child>arm_L_link1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK2 -->
+    <link name="arm_L_link2">
+      <pose relative_to="arm_L_joint2">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.6621</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link2_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link2_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint2" type="revolute">
+      <pose relative_to="arm_L_link1">0 0.088 0.105 0 0 0</pose>
+      <parent>arm_L_link1</parent>
+      <child>arm_L_link2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK3 -->
+    <link name="arm_L_link3">
+      <pose relative_to="arm_L_joint3">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00033293 -0.00482569 0.40191520 0 0 0</pose>
+        <mass>4.0005</mass>
+        <inertia>
+          <ixx>0.29888290</ixx>
+          <ixy>-0.00000478</ixy>
+          <ixz>0.00033497</ixz>
+          <iyy>0.29796389</iyy>
+          <iyz>-0.00781668</iyz>
+          <izz>0.01207673</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link3_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link3_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint3" type="revolute">
+      <pose relative_to="arm_L_link2">0 0.104 0.131 0 0 0</pose>
+      <parent>arm_L_link2</parent>
+      <child>arm_L_link3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK4 -->
+    <link name="arm_L_link4">
+      <pose relative_to="arm_L_joint4">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 -0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.66208</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>-0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link4_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link4_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint4" type="revolute">
+      <pose relative_to="arm_L_link3">0 -0.088 0.8 0 0 0</pose>
+      <parent>arm_L_link3</parent>
+      <child>arm_L_link4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK5 -->
+    <link name="arm_L_link5">
+      <pose relative_to="arm_L_joint5">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00050908 -0.00461248 0.21393427 0 0 0</pose>
+        <mass>2.6161</mass>
+        <inertia>
+          <ixx>0.05207280</ixx>
+          <ixy>-0.00000483</ixy>
+          <ixz>0.00009635</ixz>
+          <iyy>0.05170972</iyy>
+          <iyz>-0.00247387</iyz>
+          <izz>0.00805695</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link5_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link5_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint5" type="revolute">
+      <pose relative_to="arm_L_link4">0 -0.104 0.131 0 0 0</pose>
+      <parent>arm_L_link4</parent>
+      <child>arm_L_link5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK6 -->
+    <link name="arm_L_link6">
+      <pose relative_to="arm_L_joint6">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00011474 -0.05246547 -0.03422529 0 0 0</pose>
+        <mass>4.9702</mass>
+        <inertia>
+          <ixx>0.05197714</ixx>
+          <ixy>-0.00005372</ixy>
+          <ixz>-0.00015573</ixz>
+          <iyy>0.03740379</iyy>
+          <iyz>0.01165841</iyz>
+          <izz>0.02571022</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link6_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link6_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint6" type="revolute">
+      <pose relative_to="arm_L_link5">0 -0.071 0.408 0 0 0</pose>
+      <parent>arm_L_link5</parent>
+      <child>arm_L_link6</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L LINK7 -->
+    <link name="arm_L_link7">
+      <pose relative_to="arm_L_joint7">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00000590 0.0 0.01747537 0 0 0</pose>
+        <mass>3.3715</mass>
+        <inertia>
+          <ixx>0.00768334</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.00000006</ixz>
+          <iyy>0.00768346</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.00607932</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_link7_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_L_link7_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_L_joint7" type="revolute">
+      <pose relative_to="arm_L_link6">0 -0.121 0.088 0 0 0</pose>
+      <parent>arm_L_link6</parent>
+      <child>arm_L_link7</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_L EEF -->
+    <link name="arm_L_eef_link">
+      <pose relative_to="arm_L_eef_fixed">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.000001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000001</iyy>
+          <iyz>0</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_L_eef_visual">
+        <geometry>
+          <box>
+            <size>0.02 0.02 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="arm_L_eef_fixed" type="fixed">
+      <pose relative_to="arm_L_link7">0 0 0.097 0 0 0</pose>
+      <parent>arm_L_link7</parent>
+      <child>arm_L_eef_link</child>
+    </joint>
+
+    <!-- ################################################################## -->
+    <!-- ==================== RIGHT ARM (-Y) ==================== -->
+    <!-- ################################################################## -->
+
+    <!-- ARM_R BASE -->
+    <link name="arm_R_base">
+      <pose relative_to="arm_R_mount">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00000965 -0.00003686 0.07767998 0 0 0</pose>
+        <mass>3.3436</mass>
+        <inertia>
+          <ixx>0.00751250</ixx>
+          <ixy>-0.00000006</ixy>
+          <ixz>0.00000167</ixz>
+          <iyy>0.00752435</iyy>
+          <iyz>-0.00000111</iyz>
+          <izz>0.00631252</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_base_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_base_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_mount" type="fixed">
+      <pose relative_to="satellite_body">1.9 -0.9 0 1.5708 0 0</pose>
+      <parent>satellite_body</parent>
+      <child>arm_R_base</child>
+    </joint>
+
+    <!-- ARM_R LINK1 -->
+    <link name="arm_R_link1">
+      <pose relative_to="arm_R_joint1">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00026892 -0.08021331 0.09358186 0 0 0</pose>
+        <mass>2.1207</mass>
+        <inertia>
+          <ixx>0.02665777</ixx>
+          <ixy>0.00012951</ixy>
+          <ixz>-0.00002113</ixz>
+          <iyy>0.00821363</iyy>
+          <iyz>-0.00194208</iyz>
+          <izz>0.02512228</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link1_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link1_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint1" type="revolute">
+      <pose relative_to="arm_R_base">0 0 0.094 0 0 0</pose>
+      <parent>arm_R_base</parent>
+      <child>arm_R_link1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK2 -->
+    <link name="arm_R_link2">
+      <pose relative_to="arm_R_joint2">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.6621</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link2_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link2_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint2" type="revolute">
+      <pose relative_to="arm_R_link1">0 0.088 0.105 0 0 0</pose>
+      <parent>arm_R_link1</parent>
+      <child>arm_R_link2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK3 -->
+    <link name="arm_R_link3">
+      <pose relative_to="arm_R_joint3">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00033293 -0.00482569 0.40191520 0 0 0</pose>
+        <mass>4.0005</mass>
+        <inertia>
+          <ixx>0.29888290</ixx>
+          <ixy>-0.00000478</ixy>
+          <ixz>0.00033497</ixz>
+          <iyy>0.29796389</iyy>
+          <iyz>-0.00781668</iyz>
+          <izz>0.01207673</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link3_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link3_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint3" type="revolute">
+      <pose relative_to="arm_R_link2">0 0.104 0.131 0 0 0</pose>
+      <parent>arm_R_link2</parent>
+      <child>arm_R_link3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK4 -->
+    <link name="arm_R_link4">
+      <pose relative_to="arm_R_joint4">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 -0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.66208</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>-0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link4_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link4_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint4" type="revolute">
+      <pose relative_to="arm_R_link3">0 -0.088 0.8 0 0 0</pose>
+      <parent>arm_R_link3</parent>
+      <child>arm_R_link4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK5 -->
+    <link name="arm_R_link5">
+      <pose relative_to="arm_R_joint5">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00050908 -0.00461248 0.21393427 0 0 0</pose>
+        <mass>2.6161</mass>
+        <inertia>
+          <ixx>0.05207280</ixx>
+          <ixy>-0.00000483</ixy>
+          <ixz>0.00009635</ixz>
+          <iyy>0.05170972</iyy>
+          <iyz>-0.00247387</iyz>
+          <izz>0.00805695</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link5_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link5_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint5" type="revolute">
+      <pose relative_to="arm_R_link4">0 -0.104 0.131 0 0 0</pose>
+      <parent>arm_R_link4</parent>
+      <child>arm_R_link5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK6 -->
+    <link name="arm_R_link6">
+      <pose relative_to="arm_R_joint6">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00011474 -0.05246547 -0.03422529 0 0 0</pose>
+        <mass>4.9702</mass>
+        <inertia>
+          <ixx>0.05197714</ixx>
+          <ixy>-0.00005372</ixy>
+          <ixz>-0.00015573</ixz>
+          <iyy>0.03740379</iyy>
+          <iyz>0.01165841</iyz>
+          <izz>0.02571022</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link6_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link6_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint6" type="revolute">
+      <pose relative_to="arm_R_link5">0 -0.071 0.408 0 0 0</pose>
+      <parent>arm_R_link5</parent>
+      <child>arm_R_link6</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R LINK7 -->
+    <link name="arm_R_link7">
+      <pose relative_to="arm_R_joint7">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00000590 0.0 0.01747537 0 0 0</pose>
+        <mass>3.3715</mass>
+        <inertia>
+          <ixx>0.00768334</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.00000006</ixz>
+          <iyy>0.00768346</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.00607932</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_link7_visual">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="arm_R_link7_collision">
+        <geometry>
+          <mesh>
+            <uri>model://kari_arm/meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="arm_R_joint7" type="revolute">
+      <pose relative_to="arm_R_link6">0 -0.121 0.088 0 0 0</pose>
+      <parent>arm_R_link6</parent>
+      <child>arm_R_link7</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ARM_R EEF -->
+    <link name="arm_R_eef_link">
+      <pose relative_to="arm_R_eef_fixed">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.000001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000001</iyy>
+          <iyz>0</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="arm_R_eef_visual">
+        <geometry>
+          <box>
+            <size>0.02 0.02 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="arm_R_eef_fixed" type="fixed">
+      <pose relative_to="arm_R_link7">0 0 0.097 0 0 0</pose>
+      <parent>arm_R_link7</parent>
+      <child>arm_R_eef_link</child>
+    </joint>
+
+    <!-- ################################################################## -->
+    <!-- ==================== gz_ros2_control plugin ==================== -->
+    <!-- ################################################################## -->
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>/home/ndh/space_ros_ws/install/orbit_sim/share/orbit_sim/config/kari_dual_arm_controllers.yaml</parameters>
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+    </plugin>
+
+    <!-- Adjacent link collision disable - Left Arm -->
+    <disable_collisions>
+      <link_pair><link1>satellite_body</link1><link2>arm_L_base</link2></link_pair>
+      <link_pair><link1>arm_L_base</link1><link2>arm_L_link1</link2></link_pair>
+      <link_pair><link1>arm_L_link1</link1><link2>arm_L_link2</link2></link_pair>
+      <link_pair><link1>arm_L_link2</link1><link2>arm_L_link3</link2></link_pair>
+      <link_pair><link1>arm_L_link3</link1><link2>arm_L_link4</link2></link_pair>
+      <link_pair><link1>arm_L_link4</link1><link2>arm_L_link5</link2></link_pair>
+      <link_pair><link1>arm_L_link5</link1><link2>arm_L_link6</link2></link_pair>
+      <link_pair><link1>arm_L_link6</link1><link2>arm_L_link7</link2></link_pair>
+      <link_pair><link1>arm_L_link7</link1><link2>arm_L_eef_link</link2></link_pair>
+    </disable_collisions>
+    <!-- Adjacent link collision disable - Right Arm -->
+    <disable_collisions>
+      <link_pair><link1>satellite_body</link1><link2>arm_R_base</link2></link_pair>
+      <link_pair><link1>arm_R_base</link1><link2>arm_R_link1</link2></link_pair>
+      <link_pair><link1>arm_R_link1</link1><link2>arm_R_link2</link2></link_pair>
+      <link_pair><link1>arm_R_link2</link1><link2>arm_R_link3</link2></link_pair>
+      <link_pair><link1>arm_R_link3</link1><link2>arm_R_link4</link2></link_pair>
+      <link_pair><link1>arm_R_link4</link1><link2>arm_R_link5</link2></link_pair>
+      <link_pair><link1>arm_R_link5</link1><link2>arm_R_link6</link2></link_pair>
+      <link_pair><link1>arm_R_link6</link1><link2>arm_R_link7</link2></link_pair>
+      <link_pair><link1>arm_R_link7</link1><link2>arm_R_eef_link</link2></link_pair>
+    </disable_collisions>
+  </model>
+</sdf>

@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="kari_dual_arm">
+  
+  <!-- ========== SATELLITE BODY ========== -->
+  <link name="satellite_body">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="500"/>
+      <inertia ixx="260" ixy="-0.2" ixz="0.6"
+               iyy="280" iyz="4" izz="170"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.95 2.4 2.4"/>
+      </geometry>
+      <material name="gold">
+        <color rgba="0.85 0.65 0.13 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.95 2.4 2.4"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ################################################################## -->
+  <!-- ==================== LEFT ARM (+Y) ==================== -->
+  <!-- 장착점: [1.9, 0.9, 0], 회전: roll=-90도 -->
+  <!-- ################################################################## -->
+
+  <link name="arm_L_base">
+    <inertial>
+      <origin xyz="-0.00000965 -0.00003686 0.07767998" rpy="0 0 0"/>
+      <mass value="3.3436"/>
+      <inertia ixx="0.00751250" ixy="-0.00000006" ixz="0.00000167"
+               iyy="0.00752435" iyz="-0.00000111" izz="0.00631252"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J0.STL"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.75 0.75 0.75 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J0.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_mount" type="fixed">
+    <origin xyz="1.9 1.4 0" rpy="-1.5708 0 0"/>
+    <parent link="satellite_body"/>
+    <child link="arm_L_base"/>
+  </joint>
+
+  <link name="arm_L_link1">
+    <inertial>
+      <origin xyz="-0.00026892 -0.08021331 0.09358186" rpy="0 0 0"/>
+      <mass value="2.1207"/>
+      <inertia ixx="0.02665777" ixy="0.00012951" ixz="-0.00002113"
+               iyy="0.00821363" iyz="-0.00194208" izz="0.02512228"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J1.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J1.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint1" type="revolute">
+    <origin xyz="0 0 0.094" rpy="0 0 0"/>
+    <parent link="arm_L_base"/>
+    <child link="arm_L_link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link2">
+    <inertial>
+      <origin xyz="0.0 0.06124762 0.05639568" rpy="0 0 0"/>
+      <mass value="6.6621"/>
+      <inertia ixx="0.05097328" ixy="0.00000002" ixz="0.0"
+               iyy="0.03629437" iyz="0.01622322" izz="0.02722892"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J2.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J2.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint2" type="revolute">
+    <origin xyz="0 0.088 0.105" rpy="0 0 0"/>
+    <parent link="arm_L_link1"/>
+    <child link="arm_L_link2"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link3">
+    <inertial>
+      <origin xyz="-0.00033293 -0.00482569 0.40191520" rpy="0 0 0"/>
+      <mass value="4.0005"/>
+      <inertia ixx="0.29888290" ixy="-0.00000478" ixz="0.00033497"
+               iyy="0.29796389" iyz="-0.00781668" izz="0.01207673"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J3.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J3.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint3" type="revolute">
+    <origin xyz="0 0.104 0.131" rpy="0 0 0"/>
+    <parent link="arm_L_link2"/>
+    <child link="arm_L_link3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link4">
+    <inertial>
+      <origin xyz="0.0 -0.06124762 0.05639568" rpy="0 0 0"/>
+      <mass value="6.66208"/>
+      <inertia ixx="0.05097328" ixy="0.00000002" ixz="0.0"
+               iyy="0.03629437" iyz="-0.01622322" izz="0.02722892"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J4.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J4.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint4" type="revolute">
+    <origin xyz="0 -0.088 0.8" rpy="0 0 0"/>
+    <parent link="arm_L_link3"/>
+    <child link="arm_L_link4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link5">
+    <inertial>
+      <origin xyz="-0.00050908 -0.00461248 0.21393427" rpy="0 0 0"/>
+      <mass value="2.6161"/>
+      <inertia ixx="0.05207280" ixy="-0.00000483" ixz="0.00009635"
+               iyy="0.05170972" iyz="-0.00247387" izz="0.00805695"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J5.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J5.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint5" type="revolute">
+    <origin xyz="0 -0.104 0.131" rpy="0 0 0"/>
+    <parent link="arm_L_link4"/>
+    <child link="arm_L_link5"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link6">
+    <inertial>
+      <origin xyz="0.00011474 -0.05246547 -0.03422529" rpy="0 0 0"/>
+      <mass value="4.9702"/>
+      <inertia ixx="0.05197714" ixy="-0.00005372" ixz="-0.00015573"
+               iyy="0.03740379" iyz="0.01165841" izz="0.02571022"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J6.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J6.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint6" type="revolute">
+    <origin xyz="0 -0.071 0.408" rpy="0 0 0"/>
+    <parent link="arm_L_link5"/>
+    <child link="arm_L_link6"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_link7">
+    <inertial>
+      <origin xyz="0.00000590 0.0 0.01747537" rpy="0 0 0"/>
+      <mass value="3.3715"/>
+      <inertia ixx="0.00768334" ixy="0.0" ixz="0.00000006"
+               iyy="0.00768346" iyz="0.0" izz="0.00607932"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J7.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J7.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_L_joint7" type="revolute">
+    <origin xyz="0 -0.121 0.088" rpy="0 0 0"/>
+    <parent link="arm_L_link6"/>
+    <child link="arm_L_link7"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_L_eef_link">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="arm_L_eef_fixed" type="fixed">
+    <origin xyz="0 0 0.097" rpy="0 0 0"/>
+    <parent link="arm_L_link7"/>
+    <child link="arm_L_eef_link"/>
+  </joint>
+
+  <!-- ################################################################## -->
+  <!-- ==================== RIGHT ARM (-Y) ==================== -->
+  <!-- 장착점: [1.9, -0.9, 0], 회전: roll=+90도 -->
+  <!-- ################################################################## -->
+
+  <link name="arm_R_base">
+    <inertial>
+      <origin xyz="-0.00000965 -0.00003686 0.07767998" rpy="0 0 0"/>
+      <mass value="3.3436"/>
+      <inertia ixx="0.00751250" ixy="-0.00000006" ixz="0.00000167"
+               iyy="0.00752435" iyz="-0.00000111" izz="0.00631252"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J0.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J0.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_mount" type="fixed">
+    <origin xyz="1.9 -0.91 0" rpy="1.5708 0 0"/>
+    <parent link="satellite_body"/>
+    <child link="arm_R_base"/>
+  </joint>
+
+  <link name="arm_R_link1">
+    <inertial>
+      <origin xyz="-0.00026892 -0.08021331 0.09358186" rpy="0 0 0"/>
+      <mass value="2.1207"/>
+      <inertia ixx="0.02665777" ixy="0.00012951" ixz="-0.00002113"
+               iyy="0.00821363" iyz="-0.00194208" izz="0.02512228"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J1.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J1.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint1" type="revolute">
+    <origin xyz="0 0 0.094" rpy="0 0 0"/>
+    <parent link="arm_R_base"/>
+    <child link="arm_R_link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link2">
+    <inertial>
+      <origin xyz="0.0 0.06124762 0.05639568" rpy="0 0 0"/>
+      <mass value="6.6621"/>
+      <inertia ixx="0.05097328" ixy="0.00000002" ixz="0.0"
+               iyy="0.03629437" iyz="0.01622322" izz="0.02722892"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J2.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J2.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint2" type="revolute">
+    <origin xyz="0 0.088 0.105" rpy="0 0 0"/>
+    <parent link="arm_R_link1"/>
+    <child link="arm_R_link2"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link3">
+    <inertial>
+      <origin xyz="-0.00033293 -0.00482569 0.40191520" rpy="0 0 0"/>
+      <mass value="4.0005"/>
+      <inertia ixx="0.29888290" ixy="-0.00000478" ixz="0.00033497"
+               iyy="0.29796389" iyz="-0.00781668" izz="0.01207673"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J3.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J3.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint3" type="revolute">
+    <origin xyz="0 0.104 0.131" rpy="0 0 0"/>
+    <parent link="arm_R_link2"/>
+    <child link="arm_R_link3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link4">
+    <inertial>
+      <origin xyz="0.0 -0.06124762 0.05639568" rpy="0 0 0"/>
+      <mass value="6.66208"/>
+      <inertia ixx="0.05097328" ixy="0.00000002" ixz="0.0"
+               iyy="0.03629437" iyz="-0.01622322" izz="0.02722892"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J4.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J4.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint4" type="revolute">
+    <origin xyz="0 -0.088 0.8" rpy="0 0 0"/>
+    <parent link="arm_R_link3"/>
+    <child link="arm_R_link4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link5">
+    <inertial>
+      <origin xyz="-0.00050908 -0.00461248 0.21393427" rpy="0 0 0"/>
+      <mass value="2.6161"/>
+      <inertia ixx="0.05207280" ixy="-0.00000483" ixz="0.00009635"
+               iyy="0.05170972" iyz="-0.00247387" izz="0.00805695"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J5.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J5.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint5" type="revolute">
+    <origin xyz="0 -0.104 0.131" rpy="0 0 0"/>
+    <parent link="arm_R_link4"/>
+    <child link="arm_R_link5"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link6">
+    <inertial>
+      <origin xyz="0.00011474 -0.05246547 -0.03422529" rpy="0 0 0"/>
+      <mass value="4.9702"/>
+      <inertia ixx="0.05197714" ixy="-0.00005372" ixz="-0.00015573"
+               iyy="0.03740379" iyz="0.01165841" izz="0.02571022"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J6.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J6.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint6" type="revolute">
+    <origin xyz="0 -0.071 0.408" rpy="0 0 0"/>
+    <parent link="arm_R_link5"/>
+    <child link="arm_R_link6"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_link7">
+    <inertial>
+      <origin xyz="0.00000590 0.0 0.01747537" rpy="0 0 0"/>
+      <mass value="3.3715"/>
+      <inertia ixx="0.00768334" ixy="0.0" ixz="0.00000006"
+               iyy="0.00768346" iyz="0.0" izz="0.00607932"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J7.STL"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://orbit_sim/models/kari_arm/meshes/ASM_J7.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_R_joint7" type="revolute">
+    <origin xyz="0 -0.121 0.088" rpy="0 0 0"/>
+    <parent link="arm_R_link6"/>
+    <child link="arm_R_link7"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="65" velocity="0.17453"/>
+  </joint>
+
+  <link name="arm_R_eef_link">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="arm_R_eef_fixed" type="fixed">
+    <origin xyz="0 0 0.097" rpy="0 0 0"/>
+    <parent link="arm_R_link7"/>
+    <child link="arm_R_eef_link"/>
+  </joint>
+
+  <!-- ========== ros2_control ========== -->
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <!-- Left Arm -->
+    <joint name="arm_L_joint1">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint2">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint3">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint4">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint5">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint6">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_L_joint7">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <!-- Right Arm -->
+    <joint name="arm_R_joint1">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint2">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint3">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint4">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint5">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint6">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="arm_R_joint7">
+      <command_interface name="effort">
+        <param name="min">-65</param>
+        <param name="max">65</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+</robot>

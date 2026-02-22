@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="docking_world">
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>15 -10 5 0 0.3 2.3</camera_pose>
+      </plugin>
+      
+      <plugin filename="ImageDisplay" name="NFOV Left Camera">
+        <gz-gui>
+          <title>NFOV Left</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>/servicer/nfov_L/image_raw</topic>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>-8000 -2000 4000 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.8 0.8 0.8 1</specular>
+      <direction>-1 0 -0.3</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <light type="directional" name="earth_reflection">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 -10000 0 0 0</pose>
+      <diffuse>0.1 0.1 0.15 1</diffuse>
+      <specular>0 0 0 1</specular>
+      <direction>0 0 1</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <!-- Servicer satellite with dual arm -->
+    <include>
+      <uri>kari_dual_arm</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <!-- Target satellite (500m ahead) -->
+    <include>
+      <uri>intel_sat_dummy</uri>
+      <pose>500 0 0 0 0 0</pose>
+    </include>
+
+    <!-- System plugins -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics"/>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="libgz-sim-contact-system.so" name="gz::sim::systems::Contact"/>
+  </world>
+</sdf>

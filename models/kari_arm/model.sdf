@@ -1,0 +1,530 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="kari_arm">
+    <self_collide>true</self_collide>
+    <!-- ========== SATELLITE BODY ========== -->
+    <link name="satellite_body">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>500</mass>
+        <inertia>
+          <ixx>260</ixx>
+          <ixy>-0.2</ixy>
+          <ixz>0.6</ixz>
+          <iyy>280</iyy>
+          <iyz>4</iyz>
+          <izz>170</izz>
+        </inertia>
+      </inertial>
+      <visual name="satellite_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1 1 1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+        </material>
+      </visual>
+      <collision name="satellite_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1 1 1</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ========== ARM BASE (J0) ========== -->
+    <link name="base">
+      <pose relative_to="satellite_body">0 0 0.5 0 0 0</pose>
+      <inertial>
+        <pose>-0.00000965 -0.00003686 0.07767998 0 0 0</pose>
+        <mass>3.3436</mass>
+        <inertia>
+          <ixx>0.00751250</ixx>
+          <ixy>-0.00000006</ixy>
+          <ixz>0.00000167</ixz>
+          <iyy>0.00752435</iyy>
+          <iyz>-0.00000111</iyz>
+          <izz>0.00631252</izz>
+        </inertia>
+      </inertial>
+      <visual name="base_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="base_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J0.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="base_fixed" type="fixed">
+      <parent>satellite_body</parent>
+      <child>base</child>
+    </joint>
+
+    <!-- ========== LINK1 (J1) ========== -->
+    <link name="link1">
+      <pose relative_to="joint1">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00026892 -0.08021331 0.09358186 0 0 0</pose>
+        <mass>2.1207</mass>
+        <inertia>
+          <ixx>0.02665777</ixx>
+          <ixy>0.00012951</ixy>
+          <ixz>-0.00002113</ixz>
+          <iyy>0.00821363</iyy>
+          <iyz>-0.00194208</iyz>
+          <izz>0.02512228</izz>
+        </inertia>
+      </inertial>
+      <visual name="link1_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link1_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J1.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint1" type="revolute">
+      <pose relative_to="base">0 0 0.094 0 0 0</pose>
+      <parent>base</parent>
+      <child>link1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK2 (J2) ========== -->
+    <link name="link2">
+      <pose relative_to="joint2">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.6621</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.00000000</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="link2_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link2_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J2.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint2" type="revolute">
+      <pose relative_to="link1">0 0.088 0.105 0 0 0</pose>
+      <parent>link1</parent>
+      <child>link2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK3 (J3) ========== -->
+    <link name="link3">
+      <pose relative_to="joint3">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00033293 -0.00482569 0.40191520 0 0 0</pose>
+        <mass>4.0005</mass>
+        <inertia>
+          <ixx>0.29888290</ixx>
+          <ixy>-0.00000478</ixy>
+          <ixz>0.00033497</ixz>
+          <iyy>0.29796389</iyy>
+          <iyz>-0.00781668</iyz>
+          <izz>0.01207673</izz>
+        </inertia>
+      </inertial>
+      <visual name="link3_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link3_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J3.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint3" type="revolute">
+      <pose relative_to="link2">0 0.104 0.131 0 0 0</pose>
+      <parent>link2</parent>
+      <child>link3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK4 (J4) ========== -->
+    <link name="link4">
+      <pose relative_to="joint4">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0 -0.06124762 0.05639568 0 0 0</pose>
+        <mass>6.66208</mass>
+        <inertia>
+          <ixx>0.05097328</ixx>
+          <ixy>0.00000002</ixy>
+          <ixz>0.00000000</ixz>
+          <iyy>0.03629437</iyy>
+          <iyz>-0.01622322</iyz>
+          <izz>0.02722892</izz>
+        </inertia>
+      </inertial>
+      <visual name="link4_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link4_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J4.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint4" type="revolute">
+      <pose relative_to="link3">0 -0.088 0.8 0 0 0</pose>
+      <parent>link3</parent>
+      <child>link4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK5 (J5) ========== -->
+    <link name="link5">
+      <pose relative_to="joint5">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.00050908 -0.00461248 0.21393427 0 0 0</pose>
+        <mass>2.6161</mass>
+        <inertia>
+          <ixx>0.05207280</ixx>
+          <ixy>-0.00000483</ixy>
+          <ixz>0.00009635</ixz>
+          <iyy>0.05170972</iyy>
+          <iyz>-0.00247387</iyz>
+          <izz>0.00805695</izz>
+        </inertia>
+      </inertial>
+      <visual name="link5_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link5_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J5.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint5" type="revolute">
+      <pose relative_to="link4">0 -0.104 0.131 0 0 0</pose>
+      <parent>link4</parent>
+      <child>link5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK6 (J6) ========== -->
+    <link name="link6">
+      <pose relative_to="joint6">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00011474 -0.05246547 -0.03422529 0 0 0</pose>
+        <mass>4.9702</mass>
+        <inertia>
+          <ixx>0.05197714</ixx>
+          <ixy>-0.00005372</ixy>
+          <ixz>-0.00015573</ixz>
+          <iyy>0.03740379</iyy>
+          <iyz>0.01165841</iyz>
+          <izz>0.02571022</izz>
+        </inertia>
+      </inertial>
+      <visual name="link6_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link6_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J6.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint6" type="revolute">
+      <pose relative_to="link5">0 -0.071 0.408 0 0 0</pose>
+      <parent>link5</parent>
+      <child>link6</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== LINK7 (J7) ========== -->
+    <link name="link7">
+      <pose relative_to="joint7">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.00000590 0.0 0.01747537 0 0 0</pose>
+        <mass>3.3715</mass>
+        <inertia>
+          <ixx>0.00768334</ixx>
+          <ixy>0.00000000</ixy>
+          <ixz>0.00000006</ixz>
+          <iyy>0.00768346</iyy>
+          <iyz>0.00000000</iyz>
+          <izz>0.00607932</izz>
+        </inertia>
+      </inertial>
+      <visual name="link7_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.75 0.75 0.75 1</diffuse>
+        </material>
+      </visual>
+      <collision name="link7_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/ASM_J7.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="joint7" type="revolute">
+      <pose relative_to="link6">0 -0.121 0.088 0 0 0</pose>
+      <parent>link6</parent>
+      <child>link7</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>65</effort>
+          <velocity>0.17453</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== END EFFECTOR ========== -->
+    <link name="eef_link">
+      <pose relative_to="eef_fixed">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.000001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000001</iyy>
+          <iyz>0</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="eef_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="eef_fixed" type="fixed">
+      <pose relative_to="link7">0 0 0.097 0 0 0</pose>
+      <parent>link7</parent>
+      <child>eef_link</child>
+    </joint>
+
+    <!-- ========== gz_ros2_control plugin ========== -->
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>/home/ndh/space_ros_ws/install/orbit_sim/share/orbit_sim/config/kari_arm_controllers.yaml</parameters>
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+    </plugin>
+
+    <!-- Adjacent link collision disable -->
+    <disable_collisions>
+      <link_pair><link1>satellite_body</link1><link2>base</link2></link_pair>
+      <link_pair><link1>base</link1><link2>link1</link2></link_pair>
+      <link_pair><link1>link1</link1><link2>link2</link2></link_pair>
+      <link_pair><link1>link2</link1><link2>link3</link2></link_pair>
+      <link_pair><link1>link3</link1><link2>link4</link2></link_pair>
+      <link_pair><link1>link4</link1><link2>link5</link2></link_pair>
+      <link_pair><link1>link5</link1><link2>link6</link2></link_pair>
+      <link_pair><link1>link6</link1><link2>link7</link2></link_pair>
+      <link_pair><link1>link7</link1><link2>eef_link</link2></link_pair>
+    </disable_collisions>
+  </model>
+</sdf>

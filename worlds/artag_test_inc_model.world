@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="space_world">
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>-24.59 -10.08 12.13 0.0 0.5 -0.34</camera_pose>
+      </plugin>
+      
+      <plugin filename="ImageDisplay" name="Image Display">
+        <gz-gui>
+          <title>Camera View</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>nasa_satellite2/camera</topic>
+        <refresh_rate_hz>60</refresh_rate_hz>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.05 0.05 0.05 1</specular>
+      <direction>0 0 -1</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <!--include>
+      <uri>model://earth</uri>
+      <name>earth</name>
+      <pose>1193.56 2226.08 -1279.39 0.58 -0.35 -0.22</pose>
+    </include-->
+
+    <include>
+      <uri>model://nasa_satellite2</uri>
+      <name>nasa_satellite2</name>
+      <pose>-12 -10.7 1.3 0 0 3.85</pose>
+    </include>
+
+    <model name="aruco_marker_0">
+      <pose>0 0 0 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1 1 0.001</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>1 1 1 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <emissive>0 0 0 1</emissive>
+            <pbr>
+              <metal>
+                <!--albedo_map>model://aruco_marker/materials/textures/hagi_marker</albedo_map-->
+                <!--albedo_map>model://hagi/materials/textures/hagi_marker.png</albedo_map-->
+                <albedo_map>model://aruco_marker/materials/textures/marker_id_0.png</albedo_map>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1 1 0.001</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+      
+      <!-- Capsule -->
+      <link name="capsule">
+        <pose>0 0 -5.9 1.57 0 0</pose>
+        <visual name="capsule_visual">
+          <geometry>
+            <mesh>
+              <uri>model://capsule/resources/capsule.glb</uri>
+              <scale>0.3 0.3 0.3</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name="capsule_collision">
+          <geometry>
+            <mesh>
+              <uri>model://capsule/resources/capsule.glb</uri>
+              <scale>0.3 0.3 0.3</scale>
+            </mesh>
+          </geometry>
+        </collision>
+      </link>
+
+      <joint name="marker_to_capsule" type="fixed">
+        <parent>link</parent>
+        <child>capsule</child>
+      </joint>
+
+    </model>
+
+    <!-- 시스템 플러그인 -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics"></plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"></plugin>
+  </world>
+</sdf>

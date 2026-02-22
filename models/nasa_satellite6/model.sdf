@@ -1,0 +1,325 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="nasa_satellite6">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+    <link name="nasa_satellite_link6">
+      <inertial>
+        <pose>-0.0054 -0.0036 -0.0009 0 0 0</pose> 
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <iyy>0.001</iyy>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://nasa_satellite6/meshes/nasa_satellite2.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://nasa_satellite6/meshes/nasa_satellite2.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+      
+      <!-- 기존 카메라 유지 -->
+      <sensor name="satellite_camera6" type="camera">
+        <pose>0.6153 0.4367 0.1405 0 0 1.5708</pose>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <visualize>true</visualize>
+        <topic>nasa_satellite6/camera</topic>
+      </sensor>
+
+    <!-- VSS NFOV 스테레오 마운트 (장거리 추적용) -->
+    <link name="vss_nfov_mount_link">
+      <pose relative_to="nasa_satellite_link6">0.6 0.4 0.2 0 0 1.5708</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+    
+    </link>
+    <joint name="vss_nfov_mount_joint" type="fixed">
+      <parent>nasa_satellite_link6</parent>
+      <child>vss_nfov_mount_link</child>
+    </joint>
+
+    <link name="vss_nfov_left_link">
+      <pose relative_to="vss_nfov_mount_link">0 -0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_nfov_left" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>0.1</horizontal_fov>  <!-- 5.5도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>1.0</near>
+            <far>50000</far>  <!-- 50km -->
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>40</update_rate>  <!-- 최대 4Hz -->
+        <visualize>false</visualize>
+        <topic>/mev/vss_nfov/left/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_nfov_left_joint" type="fixed">
+      <parent>vss_nfov_mount_link</parent>
+      <child>vss_nfov_left_link</child>
+    </joint>
+
+    <link name="vss_nfov_right_link">
+      <pose relative_to="vss_nfov_mount_link">0 0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_nfov_right" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>0.1</horizontal_fov>  <!-- 5.5도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>L8</format>
+          </image>
+          <clip>
+            <near>1.0</near>
+            <far>50000</far>  <!-- 50km -->
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.02</stddev>
+          </noise>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/mev/vss_nfov/right/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_nfov_right_joint" type="fixed">
+      <parent>vss_nfov_mount_link</parent>
+      <child>vss_nfov_right_link</child>
+    </joint>
+
+    <!-- VSS WFOV 스테레오 마운트 (근거리 검사용) -->
+    <link name="vss_wfov_mount_link">
+      <pose relative_to="nasa_satellite_link6">0.6 0.4 0.1 0 0 1.5708</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name="vss_wfov_mount_joint" type="fixed">
+      <parent>nasa_satellite_link6</parent>
+      <child>vss_wfov_mount_link</child>
+    </joint>
+
+    <link name="vss_wfov_left_link">
+      <pose relative_to="vss_wfov_mount_link">0 -0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_wfov_left" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>0.3403</horizontal_fov>  <!-- 19.5도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <!--format>R8G8B8</format-->
+            <format>L8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>  <!-- 5km -->
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/mev/vss_wfov/left/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_wfov_left_joint" type="fixed">
+      <parent>vss_wfov_mount_link</parent>
+      <child>vss_wfov_left_link</child>
+    </joint>
+
+    <link name="vss_wfov_right_link">
+      <pose relative_to="vss_wfov_mount_link">0 0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_wfov_right" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>1.396</horizontal_fov>  <!-- 80도 -->
+          <!--horizontal_fov>0.524</horizontal_fov-->  <!-- 30도 -->
+          <!--horizontal_fov>0.349</horizontal_fov-->  <!-- 20도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>  <!-- 5km -->
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/mev/vss_wfov/right/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_wfov_right_joint" type="fixed">
+      <parent>vss_wfov_mount_link</parent>
+      <child>vss_wfov_right_link</child>
+    </joint>
+
+    <!-- VSS 도킹 카메라 스테레오 마운트 (극근거리용) -->
+    <link name="vss_docking_mount_link">
+      <pose relative_to="nasa_satellite_link6">0.6 0.4 0.0 0 0 1.5708</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name="vss_docking_mount_joint" type="fixed">
+      <parent>nasa_satellite_link6</parent>
+      <child>vss_docking_mount_link</child>
+    </joint>
+
+    <link name="vss_docking_left_link">
+      <pose relative_to="vss_docking_mount_link">0 -0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_docking_left" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>0.524</horizontal_fov>  <!-- 30도 -->
+          <!--horizontal_fov>1.1868</horizontal_fov-->  <!-- 기존 시뮬레이션 68도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>  <!-- 100m -->
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/mev/vss_docking/left/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_docking_left_joint" type="fixed">
+      <parent>vss_docking_mount_link</parent>
+      <child>vss_docking_left_link</child>
+    </joint>
+
+    <link name="vss_docking_right_link">
+      <pose relative_to="vss_docking_mount_link">0 0.1 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="vss_docking_right" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>0.349</horizontal_fov>  <!-- 20도 -->
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>  <!-- 100m -->
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>4</update_rate>
+        <visualize>false</visualize>
+        <topic>/mev/vss_docking/right/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="vss_docking_right_joint" type="fixed">
+      <parent>vss_docking_mount_link</parent>
+      <child>vss_docking_right_link</child>
+    </joint>
+
+  </model>
+</sdf>

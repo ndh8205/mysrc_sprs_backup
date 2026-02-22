@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="space_world">
+    <physics name="orbital_physics" type="dart" default="true">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <dart>
+        <solver>
+          <solver_type>dantzig</solver_type>
+          <lcp_max_iterations>2000</lcp_max_iterations>
+          <lcp_tolerance>1e-12</lcp_tolerance>
+        </solver>
+        <collision_detector>fcl</collision_detector>
+        <constraints>
+          <cfm>1e-12</cfm>
+          <erp>0.9</erp>
+          <contact_surface_layer>1e-6</contact_surface_layer>
+        </constraints>
+      </dart>
+    </physics>
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>10.5 -10.5 10.3 0.0 0.3 2.35</camera_pose>
+      </plugin>
+      
+      <plugin filename="ImageDisplay" name="Image Display">
+        <gz-gui>
+          <title>Camera View</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>intel_sat_dummy/camera</topic>
+        <refresh_rate_hz>60</refresh_rate_hz>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <!-- 중력 0 (LVLH 좌표계에서는 중력이 이미 방정식에 포함됨) -->
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>-8000 -2000 4000 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.8 0.8 0.8 1</specular>
+      <direction>0.8 0.2 -0.4</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <!-- Chief 위성 (원점에 고정) -->
+    <include>
+      <uri>model://intel_sat_dummy</uri>
+      <name>chief_satellite</name>
+      <pose>0 0 0 0 0 0</pose>
+      <static>true</static>  <!-- 고정 -->
+    </include>
+
+    <!-- Deputy 위성 (초기 위치: Y축 500m) -->
+    <include>
+      <uri>model://nasa_satellite5</uri>
+      <name>deputy_satellite</name>
+      <pose>0 50 0 0 0 0</pose>  <!-- LVLH: X=0, Y=500m, Z=0 -->
+    </include>
+
+    <!-- 시스템 플러그인 -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics">
+      <engine>
+        <filename>gz-physics-dartsim-plugin</filename>
+      </engine>
+    </plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="libgz-sim-imu-system.so" name="gz::sim::systems::Imu"/>
+    
+    <!-- Force/Torque 적용을 위한 플러그인 -->
+    <plugin filename="libgz-sim-apply-link-wrench-system.so" name="gz::sim::systems::ApplyLinkWrench"/>
+  </world>
+</sdf>

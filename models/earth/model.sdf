@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+    <model name="earth">
+        <static>false</static>
+        <!-- 원래 위치 유지 -->
+        <!--pose>0 0 0 0 0 0</pose-->
+        <pose>0 0 0 0 0 0</pose>
+        <link name="base_link">
+            <inertial>
+                <mass>10</mass>
+                <inertia>
+                    <ixx>40</ixx>
+                    <iyy>40</iyy>
+                    <izz>40</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+            </inertial>
+            
+            <visual name="base_link_visual">
+                <geometry>
+                    <mesh>
+                        <uri>model://earth/resources/earth.glb</uri>
+                        <scale>25 25 25</scale>
+                    </mesh>
+                </geometry>
+            </visual>
+        </link>
+    </model>
+</sdf>

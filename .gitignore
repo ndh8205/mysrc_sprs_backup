@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+build/
+install/
+log/
+.colcon/
+data/orbit_data.csv
+data/orbit_data_100hz.csv
+data/orbit_data_10hz.csv
+models/airbearing_satellite/meshes/airbearing_satellite.dae

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="hsr_1">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+    <link name="hsr_1">
+      <inertial>
+        <mass>26.265</mass>
+        <inertia>
+          <ixx>0.0604</ixx>
+          <iyy>14.2966</iyy>
+          <izz>14.2966</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://hsr_1/meshes/hsr_1.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://hsr_1/meshes/hsr_1.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <sensor name="hsr_1" type="camera">
+        <pose>-0.01677 0.5224 0.1269 0 0 1.5708</pose>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <alwaysOn>true</alwaysOn>
+        <update_rate>15</update_rate>
+        <visualize>true</visualize>
+        <topic>hsr_1/camera</topic>
+      </sensor>
+    </link>
+  </model>
+</sdf>
