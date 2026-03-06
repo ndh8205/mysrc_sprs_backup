@@ -1,747 +1,353 @@
-# 🛰️ WSL2 Ubuntu 24.04에서 위성 근접운용 시뮬레이션 재구축 가이드
+# orbit_sim — Space ROS Orbital Simulation Package
 
-**환경:** Windows 10/11 (WSL2), Ubuntu 24.04, NVIDIA GPU  
-**목표:** Docker 없이 ROS 2 Jazzy + Gazebo Harmonic 환경에서 구축  
+ROS 2 Jazzy + Gazebo Harmonic 기반 우주 근접운용(RPO) 시뮬레이션 패키지.
+듀얼암 도킹, 편대비행, LiDAR 3D 매핑, DVS 이벤트 카메라, CMG 자세제어, 화성 회전익기 등을 지원합니다.
 
-### 학교 네트워크에서 가끔 ROS2와 Gazebo의 저장소 키와 저장소 링크가 안먹힐때가 있으므로 그때는 외부 인터넷환경을 이용할것
----
-
-## 📌 목차
-1. [WSL2 환경 설정](#1-wsl2-환경-설정)
-2. [ROS 2 Jazzy 설치](#2-ros-2-jazzy-설치)
-3. [Gazebo Harmonic 설치](#3-gazebo-harmonic-설치)
-4. [ROS-Gazebo 연동 및 추가 패키지 설치](#4-ros-gazebo-연동-및-추가-패키지-설치)
-5. [WSL2 GPU 렌더링 설정](#5-wsl2-gpu-렌더링-설정)
-6. [워크스페이스 구축 및 빌드](#6-워크스페이스-구축-및-빌드)
-7. [환경 변수 설정](#7-환경-변수-설정)
-8. [시뮬레이션 실행](#8-시뮬레이션-실행)
-9. [orbit_sim 패키지 구조](#9-orbit_sim-패키지-구조)
-10. [주요 ROS 2 토픽 및 명령어 레퍼런스](#10-주요-ros-2-토픽-및-명령어-레퍼런스)
-11. [Gazebo 모델 설정 주요 사항](#11-gazebo-모델-설정-주요-사항)
-12. [트러블슈팅](#12-트러블슈팅)
-13. [향후 확장 방향](#13-향후-확장-방향)
+**환경:** WSL2 Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic (DART), NVIDIA GPU (D3D12)
 
 ---
 
-## 1. WSL2 환경 설정
+## 주요 기능
 
-### 1.1 Ubuntu 24.04 설치
-```powershell
-wsl --install -d Ubuntu-24.04
-```
-
-### 1.2 WSL2 자원 제한 (선택 권장)
-`C:\Users\<사용자명>\.wslconfig` 파일 작성:
-```ini
-[wsl2]
-memory=8GB
-processors=4
-swap=2GB
-```
-변경 후:
-```cmd
-wsl --shutdown
-```
-초기화가 필요한 경우:
-```bash
-wsl --terminate Ubuntu-24.04
-wsl --unregister Ubuntu-24.04
-wsl --install -d Ubuntu-24.04
-```
-> **⚠️ 주의:** `--unregister`는 배포판 **완전 삭제** (내부 데이터 복구 불가). `--terminate`는 실행 중인 인스턴스 강제 종료.
-
-재부팅 후 Ubuntu 사용자명 및 암호를 설정합니다.
-
-### 1.3 로케일 및 기본 도구 설치
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y locales curl gnupg2 lsb-release wget git-lfs mesa-utils libasio-dev
-sudo locale-gen en_US en_US.UTF-8
-sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-export LANG=en_US.UTF-8
-```
+| 기능 | 설명 |
+|------|------|
+| **GCO 근접운용** | Clohessy-Wiltshire 상대운동 기반 다중 위성 제어 |
+| **LiDAR 3D 매핑** | DragonEye/TriDAR급 LiDAR로 대상 위성 3D 포인트클라우드 누적 |
+| **DVS 이벤트 카메라** | DAVIS346 스펙 이벤트 카메라 에뮬레이션 ([gz_dvs_plugin](https://github.com/ndh8205/gz_dvs_plugin)) |
+| **듀얼암 도킹** | 7-DOF KARI 암 x2 임피던스 제어 기반 도킹 |
+| **CMG 자세제어** | VSCMG 테스트베드, CubeSat CMG, 화성 회전익기 CMG |
+| **화성 회전익기** | CMG 보강 헥사콥터 (IAC 2026 논문 연구) |
+| **스테레오 비전** | 스테레오 카메라 깊이/디스패리티 분석 |
+| **편대비행** | CSV 궤적 기반 다중 위성 편대비행 시뮬레이션 |
 
 ---
 
-## 2. ROS 2 Jazzy 설치
+## 빠른 시작
 
-### 2.1 저장소 키 및 저장소 추가
+### 1. 워크스페이스 구축
+
 ```bash
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-```
-```bash
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-```
-
-### 2.2 ROS 2 Jazzy 설치
-```bash
-sudo apt update
-sudo apt install -y ros-jazzy-desktop python3-colcon-common-extensions python3-rosdep python3-vcstool
-```
-
-### 2.3 추가 개발 도구
-```bash
-sudo apt install -y python3-pip python3-colcon-mixin python3-flake8 python3-pytest-cov \
-  python3-rosinstall-generator ros-jazzy-ament-* ros-jazzy-ros-testing ros-jazzy-eigen3-cmake-module
-```
-
-### 2.4 ROS 2 환경 초기화
-```bash
-echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-source ~/.bashrc
-
-sudo rosdep init || true
-rosdep update
-
-colcon mixin add default https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-colcon mixin update
-```
-
-### 2.5 설치 확인
-```bash
-ros2 --help
-printenv ROS_DISTRO  # "jazzy" 출력 확인
-```
-
----
-
-## 3. Gazebo Harmonic 설치
-
-### 3.1 OSRF 저장소 추가
-```bash
-sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/gazebo-archive-keyring.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gazebo-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list
-
-sudo apt update
-```
-
-### 3.2 Gazebo Harmonic 설치
-```bash
-sudo apt install -y gz-harmonic
-```
-
-설치 확인:
-```bash
-gz sim --version
-```
-
----
-
-## 4. ROS-Gazebo 연동 및 추가 패키지 설치
-
-### 4.1 핵심 연동 패키지
-```bash
-sudo apt install -y \
-  ros-jazzy-ros-gz \
-  ros-jazzy-gz-ros2-control \
-  ros-jazzy-moveit \
-  ros-jazzy-ros2-control \
-  ros-jazzy-ros2-controllers \
-  ros-jazzy-joint-state-publisher \
-  ros-jazzy-joint-state-publisher-gui \
-  ros-jazzy-xacro \
-  ros-jazzy-robot-state-publisher \
-  ros-jazzy-controller-manager
-```
-
-### 4.2 추가 기능 패키지
-```bash
-sudo apt install -y \
-  ros-jazzy-rosbridge-server \
-  ros-jazzy-web-video-server \
-  ros-jazzy-slam-toolbox \
-  ros-jazzy-navigation2 \
-  ros-jazzy-nav2-bringup \
-  ros-jazzy-rmw-fastrtps-cpp \
-  ros-jazzy-cv-bridge
-```
-
-### 4.3 Python 의존성
-orbit_sim 노드들이 사용하는 Python 패키지:
-```bash
-sudo apt install -y \
-  python3-numpy \
-  python3-scipy \
-  python3-matplotlib \
-  python3-opencv \
-  python3-tk
-```
-
-| 패키지 | 사용처 |
-|--------|--------|
-| `numpy`, `scipy` | imu_visualizer (쿼터니언 변환, Rotation) |
-| `matplotlib` | imu_visualizer (실시간 플롯) |
-| `python3-tk` | pose_control_camtest (Tkinter GUI) |
-| `python3-opencv` | aruco_detector, aruco_simulator, gazebo_aruco_controller |
-
-### 4.4 GPU 사용자 그룹 추가
-```bash
-sudo usermod -aG render $USER
-```
-> **참고:** 재부팅 후 적용됩니다.
-
----
-
-## 5. WSL2 GPU 렌더링 설정
-
-> **핵심:** WSLg 환경에서는 `DISPLAY=:0`이 자동 설정되므로 별도 지정 불필요.  
-> `LIBGL_ALWAYS_INDIRECT`, `__NV_PRIME_RENDER_OFFLOAD`, `__GLX_VENDOR_LIBRARY_NAME`, `MESA_GL_VERSION_OVERRIDE` 등은 불필요 — 아래 3개 변수만으로 충분.
-
-### 5.1 환경 변수 설정
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# === WSL2 GPU Rendering ===
-export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH
-export MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
-export GALLIUM_DRIVER=d3d12
-EOF
-
-source ~/.bashrc
-```
-
-### 5.2 렌더링 확인
-```bash
-glxinfo | grep "OpenGL renderer"
-```
-기대 출력:
-```
-OpenGL renderer string: D3D12 (NVIDIA GeForce RTX ...)
-```
-
-### 5.3 렌더링 안 될 경우
-```bash
-sudo apt install --reinstall libegl-mesa0 libgl1-mesa-dri
-```
-
-> **주의:** `.bashrc`에 동일 환경변수를 중복 추가하지 않도록 주의.  
-> 중복 여부 확인: `grep "GALLIUM_DRIVER" ~/.bashrc`  
-> 중복 정리: `sed -i '/GALLIUM_DRIVER/d' ~/.bashrc` 후 재설정
-
----
-
-## 6. 워크스페이스 구축 및 빌드
-
-### 6.1 워크스페이스 생성 및 orbit_sim 클론
-```bash
-mkdir -p ~/space_ros_ws/src
-cd ~/space_ros_ws/src
-
+mkdir -p ~/space_ros_ws/src && cd ~/space_ros_ws/src
 git clone https://github.com/ndh8205/mysrc_sprs_backup.git orbit_sim
-```
-
-### 6.2 의존성 설치
-```bash
+git clone https://github.com/ndh8205/gz_dvs_plugin.git       # DVS 플러그인 (선택)
 cd ~/space_ros_ws
 rosdep install --from-paths src --ignore-src -r -y
-```
-
-### 6.3 빌드
-```bash
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install
 source install/setup.bash
 ```
 
-> orbit_sim만 있으므로 `--allow-overriding`, `--skip-keys` 불필요.
+### 2. 환경 변수 (~/.bashrc)
 
-> **클린 빌드가 필요한 경우:**
-> ```bash
-> rm -rf build/ install/ log/
-> colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-> ```
-
-### 6.4 orbit_sim만 단독 빌드 (수정 후 빠른 반복)
 ```bash
-cd ~/space_ros_ws
-colcon build --symlink-install --packages-select orbit_sim
-source install/setup.bash
-```
-
----
-
-## 7. 환경 변수 설정
-
-### 7.1 필수 환경 변수
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# === Space ROS Workspace ===
 source ~/space_ros_ws/install/setup.bash
 export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/space_ros_ws/install/orbit_sim/share/orbit_sim/models
 export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/ros/jazzy/lib:$GZ_SIM_SYSTEM_PLUGIN_PATH
-EOF
-
-source ~/.bashrc
 ```
 
-### 7.2 환경 변수 확인
+WSL2 GPU 렌더링:
 ```bash
-echo $GZ_SIM_RESOURCE_PATH
-# 출력에 orbit_sim/models 경로가 포함되어 있어야 함
-
-echo $GZ_SIM_SYSTEM_PLUGIN_PATH
-# gz_ros2_control 플러그인 경로가 포함되어 있어야 함
+export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH
+export MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
+export GALLIUM_DRIVER=d3d12
 ```
 
 ---
 
-## 8. 시뮬레이션 실행
+## 시뮬레이션 실행
 
-### 8.1 듀얼암 도킹 시뮬레이션
+### GCO + LiDAR 3D 매핑 + DVS 이벤트 카메라
+
 ```bash
-cd ~/space_ros_ws
-source install/setup.bash
+ros2 launch orbit_sim gco_lidar_mapping.launch.py
+# DVS 이벤트 → ros2 topic echo /dvs/events
+# Gazebo GUI에서 카메라 + DVS 영상 확인 가능
+# RViz 활성화: rviz:=true
+```
+
+### GCO 센서 시각화 (Gazebo GUI 내장)
+
+```bash
+ros2 launch orbit_sim sensor_viz_gco.launch.py
+```
+
+### 듀얼암 도킹
+
+```bash
 ros2 launch orbit_sim docking_sim.launch.py
-```
-별도 터미널에서 임피던스 컨트롤러 실행:
-```bash
-source ~/space_ros_ws/install/setup.bash
-ros2 run orbit_sim dual_arm_impedance_controller
+ros2 run orbit_sim dual_arm_impedance_controller  # 별도 터미널
 ```
 
-### 8.2 KARI 암 시뮬레이션
-```bash
-# 단일 KARI 암
-ros2 launch orbit_sim kari_arm.launch.py
+### KARI 암
 
-# 듀얼 KARI 암
-ros2 launch orbit_sim kari_dual_arm.launch.py
-```
-별도 터미널에서:
 ```bash
-ros2 run orbit_sim impedance_controller          # 단일 암
-ros2 run orbit_sim dual_arm_impedance_controller  # 듀얼 암
+ros2 launch orbit_sim kari_arm.launch.py           # 단일 암
+ros2 launch orbit_sim kari_dual_arm.launch.py      # 듀얼 암
+ros2 run orbit_sim impedance_controller            # 별도 터미널
 ```
 
-### 8.3 LVLH 상대운동 시뮬레이션
+### LVLH 상대운동
+
 ```bash
-ros2 launch orbit_sim lvlh_sim.launch.py          # GUI 포함
-ros2 launch orbit_sim lvlh_sim_nogui.launch.py    # GUI 없이 (성능 우선)
+ros2 launch orbit_sim lvlh_sim.launch.py           # GUI 포함
+ros2 launch orbit_sim lvlh_sim_nogui.launch.py     # 헤드리스
 ```
 
-### 8.4 편대비행 / 다중 위성
+### 편대비행 / 다중 위성
+
 ```bash
-ros2 launch orbit_sim fm_fly.launch.py            # 편대비행
-ros2 launch orbit_sim sat.launch.py               # 위성 기본
-ros2 launch orbit_sim sat2.launch.py              # Canadarm 연동
-ros2 launch orbit_sim sat3.launch.py              # 위성 3
-ros2 launch orbit_sim sat4.launch.py              # 위성 4
+ros2 launch orbit_sim fm_fly.launch.py
+ros2 launch orbit_sim gco_test.launch.py
+ros2 launch orbit_sim gco_cam_test.launch.py
 ```
 
-### 8.5 GCO 제어 테스트
+### CMG 테스트베드
+
 ```bash
-ros2 launch orbit_sim gco_test.launch.py          # GCO 제어 테스트
-ros2 launch orbit_sim gco_cam_test.launch.py      # GCO 카메라 테스트
+ros2 launch orbit_sim cmg_testbed.launch.py        # 듀얼 VSCMG 테스트
+ros2 launch orbit_sim cubesat_cmg.launch.py        # CubeSat CMG
 ```
 
-### 8.6 비전/ArUco 테스트
+### 화성 회전익기
+
 ```bash
-ros2 launch orbit_sim pnp_test.launch.py          # PnP 포즈 추정 테스트
-ros2 launch orbit_sim experiment.launch.py        # 실험 시나리오
+ros2 launch orbit_sim mars_hexacopter_cmg_test.launch.py       # CMG 듀얼
+ros2 launch orbit_sim mars_hexacopter_cmg500_test.launch.py    # CMG-500 (30k RPM)
+ros2 launch orbit_sim mars_drone.launch.py                     # 기본 드론
 ```
 
-### 8.7 HTTP-ROS 브리지 (웹 인터페이스 연동)
+### 스테레오 카메라
+
+```bash
+ros2 launch orbit_sim stereo_test.launch.py
+```
+
+### LiDAR 테스트
+
+```bash
+ros2 launch orbit_sim lidar_test.launch.py
+ros2 launch orbit_sim lidar_mapping_test.launch.py
+```
+
+### X500 쿼드콥터
+
+```bash
+ros2 launch orbit_sim x500_test.launch.py
+```
+
+### 비전 / ArUco
+
+```bash
+ros2 launch orbit_sim pnp_test.launch.py
+ros2 launch orbit_sim experiment.launch.py
+```
+
+### HTTP-ROS 브리지 (MATLAB 연동)
+
 ```bash
 ros2 run orbit_sim http_ros_bridge
 ```
-WSL IP 확인:
-```bash
-hostname -I
-```
 
-### 8.8 알고리즘 전환 (서비스 호출)
+---
+
+## 프로세스 정리
+
 ```bash
-# SwitchAlgorithm 서비스로 제어 알고리즘 런타임 전환
-ros2 service call /switch_algorithm orbit_sim/srv/SwitchAlgorithm "{algorithm: 'new_algo'}"
+bash ~/kill_sim.sh
 ```
 
 ---
 
-## 9. orbit_sim 패키지 구조
+## 패키지 구조
 
-> src에는 `orbit_sim`만 존재. 초기 구축 시 함께 클론했던 `demos`, `simulation`, `qt_gui_core`, `ros_gz`, `vision_msgs`, `gps_msgs`는 불필요하여 제거함.
 ```
 orbit_sim/
-├── config/                              # 컨트롤러 설정
-│   ├── kari_arm_controllers.yaml
-│   └── kari_dual_arm_controllers.yaml
+├── config/                                # 설정 파일
+│   ├── kari_arm_controllers.yaml          #   단일 암 컨트롤러
+│   ├── kari_dual_arm_controllers.yaml     #   듀얼 암 컨트롤러
+│   └── lidar_mapping.rviz                 #   LiDAR 매핑 RViz 설정
 │
-├── data/                                # 궤도 데이터 (CSV)
-│   ├── orbit_data.csv
-│   ├── orbit_data_100hz.csv
-│   ├── orbit_data_10hz.csv
-│   ├── orbit_data_1hz.csv
-│   ├── sat1_state.csv
-│   ├── sat3_state.csv
-│   └── sat4_state.csv
+├── data/                                  # 궤도/실험 데이터 (CSV)
+│   ├── sat1_state.csv                     #   위성 1 궤적 (GCO)
+│   ├── sat3_state.csv                     #   위성 3 궤적
+│   ├── sat4_state.csv                     #   위성 4 궤적
+│   ├── orbit_data_*.csv                   #   궤도 데이터 (1Hz/10Hz/100Hz)
+│   └── cmg_testbed_*.csv                  #   CMG 테스트 데이터
 │
-├── launch/                              # Launch 파일
-│   ├── docking_sim.launch.py            #   도킹 시뮬레이션
-│   ├── kari_arm.launch.py               #   단일 KARI 암
-│   ├── kari_dual_arm.launch.py          #   듀얼 KARI 암
-│   ├── lvlh_sim.launch.py              #   LVLH 상대운동 시뮬레이션
-│   ├── lvlh_sim_nogui.launch.py        #   LVLH (GUI 없이)
-│   ├── fm_fly.launch.py                #   편대비행 시뮬레이션
-│   ├── experiment.launch.py            #   실험 시나리오
-│   ├── gco_test.launch.py             #   GCO 제어 테스트
-│   ├── gco_cam_test.launch.py         #   GCO 카메라 테스트
-│   ├── gco_3d_test.py                 #   GCO 3D 시각화 스크립트 (launch 파일 아님)
-│   ├── pnp_test.launch.py            #   PnP 포즈 추정 테스트
-│   ├── sat.launch.py                  #   위성 기본
-│   ├── sat2.launch.py                 #   위성 2 (Canadarm)
-│   ├── sat3.launch.py                 #   위성 3
-│   └── sat4.launch.py                 #   위성 4
+├── docs/                                  # 문서
+│   ├── mars_hexacopter_design.md          #   화성 회전익기 설계 사양
+│   └── stereo_test_guide.md               #   스테레오 카메라 가이드
 │
-├── models/                              # Gazebo 모델 (37개)
-│   ├── ── 위성/우주 ──
-│   ├── nasa_satellite/                  #   NASA 위성 기본
-│   ├── nasa_satellite2~6/               #   NASA 위성 변형 (편대비행용)
-│   ├── gaim_target_3u/                  #   GAiMSat Target 3U 큐브샛
-│   ├── intel_sat_dummy/                 #   Target 위성 더미
-│   ├── capsule/                         #   도킹 캡슐
-│   ├── iss/                             #   ISS 모델
-│   ├── earth/                           #   지구 모델
-│   ├── saturn/                          #   토성 모델
-│   ├── ── 로봇암/위성본체 ──
-│   ├── canadarm/                        #   Canadarm2 (Space ROS)
-│   ├── kari_arm/                        #   KARI 단일 암
-│   ├── kari_arm_only/                   #   KARI 독립 암
-│   ├── kari_dual_arm/                   #   듀얼 암 + Chaser 위성 본체
-│   ├── ── 지상 실험 ──
-│   ├── airbearing_satellite/            #   에어베어링 테스트베드 위성
-│   ├── controla_prototype_1/            #   ControLA 프로토타입 1
-│   ├── controla_prototype_2/            #   ControLA 프로토타입 2
-│   ├── hagi/                            #   HAGI 모델
-│   ├── hsr_1/                           #   HSR 모델
-│   ├── aruco_marker/                    #   ArUco 마커
-│   ├── hokuyo/                          #   Hokuyo LiDAR
-│   ├── ── UAM ──
-│   ├── uam_1/                           #   UAM 모델 1
-│   ├── uam_3/                           #   UAM 모델 3
-│   ├── ── 행성/환경 ──
-│   ├── lunar_surface/                   #   달 표면
-│   ├── martian_surface/                 #   화성 표면
-│   ├── moon_base/                       #   달 기지
-│   ├── ocean_surface/                   #   해양 표면 (Enceladus)
-│   ├── enceladus_surface/               #   엔셀라두스 표면
+├── launch/                                # Launch 파일 (28개)
+│   ├── ── GCO / 근접운용 ──
+│   ├── gco_test.launch.py                 #   GCO 기본 테스트
+│   ├── gco_cam_test.launch.py             #   GCO + 카메라 비전
+│   ├── gco_lidar_mapping.launch.py        #   GCO + LiDAR 매핑 + DVS
+│   ├── sensor_viz_gco.launch.py           #   GCO 센서 시각화 (GUI 내장)
+│   ├── ── LiDAR ──
+│   ├── lidar_test.launch.py               #   LiDAR 기본 테스트
+│   ├── lidar_mapping_test.launch.py       #   LiDAR 3D 매핑
+│   ├── ── 로봇암 / 도킹 ──
+│   ├── docking_sim.launch.py              #   듀얼암 도킹
+│   ├── kari_arm.launch.py                 #   단일 KARI 암
+│   ├── kari_dual_arm.launch.py            #   듀얼 KARI 암
+│   ├── ── 위성 / 편대비행 ──
+│   ├── lvlh_sim.launch.py                 #   LVLH 상대운동
+│   ├── lvlh_sim_nogui.launch.py           #   LVLH (헤드리스)
+│   ├── fm_fly.launch.py                   #   편대비행
+│   ├── sat.launch.py ~ sat4.launch.py     #   위성 시나리오
+│   ├── ── CMG ──
+│   ├── cmg_testbed.launch.py              #   VSCMG 테스트베드
+│   ├── cmg_testbed_test.launch.py         #   CMG 테스트 변형
+│   ├── cubesat_cmg.launch.py              #   CubeSat CMG
+│   ├── ── 화성 ──
+│   ├── mars_drone.launch.py               #   화성 드론
+│   ├── mars_hexacopter.launch.py          #   화성 헥사콥터
+│   ├── mars_hexacopter_cmg_test.launch.py #   화성 헥사콥터 CMG
+│   ├── mars_hexacopter_cmg500_test.launch.py # CMG-500 (30k RPM)
 │   ├── ── 기타 ──
-│   ├── nasa_ingenuity/                  #   Ingenuity 헬리콥터
-│   ├── nasa_perseverance/               #   Perseverance 로버
-│   ├── submarine/                       #   잠수함 (Enceladus)
-│   ├── solar_panel/                     #   태양전지판
-│   ├── truss/                           #   트러스 구조물
-│   ├── curiosity_path/                  #   Curiosity 경로
-│   ├── X1/                              #   X1 로버
-│   └── X2/                              #   X2 로버
+│   ├── stereo_test.launch.py              #   스테레오 카메라
+│   ├── x500_test.launch.py                #   X500 쿼드콥터
+│   ├── pnp_test.launch.py                 #   PnP 포즈 추정
+│   └── experiment.launch.py               #   실험 시나리오
 │
-├── orbit_sim/                           # Python 노드 (21개)
-│   ├── __init__.py
-│   ├── ── 암 제어 ──
-│   ├── impedance_controller.py          #   단일 암 임피던스 제어
-│   ├── dual_arm_impedance_controller.py #   듀얼 암 임피던스 제어
-│   ├── kari_arm_dynamics.py             #   단일 암 역학
-│   ├── kari_dual_arm_dynamics.py        #   듀얼 암 역학
-│   ├── force_torque_controller.py       #   힘/토크 제어
-│   ├── torque_publisher_node.py         #   토크 퍼블리셔
-│   ├── ── 위성 제어/편대비행 ──
-│   ├── multi_satellite_controller.py    #   다중 위성 제어
-│   ├── multi_satellite_controller_guidence.py  # 유도 알고리즘
-│   ├── multi_satellite_controller_service.py   # 서비스 인터페이스
-│   ├── lvlh_sim_node.py                 #   LVLH 상대운동 시뮬레이션
-│   ├── orbit_LVLH_gco.py               #   궤도 LVLH GCO 제어
-│   ├── ── 비전/센서 ──
-│   ├── aruco_detector.py                #   ArUco 마커 검출
-│   ├── aruco_simulator.py               #   ArUco 시뮬레이터
-│   ├── gazebo_aruco_controller.py       #   Gazebo ArUco 연동 제어
-│   ├── gco_controller.py                #   GCO 제어기
-│   ├── pose_control_camtest.py          #   카메라 포즈 제어 테스트
-│   ├── imu_visualizer.py                #   IMU 시각화
-│   ├── ── 센서 브리지 ──
-│   ├── laser_to_pointcloud.py           #   레이저 → 포인트클라우드 변환
-│   ├── lidar_bridge.py                  #   LiDAR 브리지
-│   └── http_ros_bridge.py               #   HTTP ↔ ROS 브리지
-│
-├── scripts/                             # 테스트/유틸리티
-│   ├── ros2_gz_test.py
-│   ├── data_logger.py
-│   ├── gco_test.py
-│   ├── lvlh_sim_node_backup.py
-│   └── test.py
-│
-├── srv/                                 # 커스텀 서비스
-│   └── SwitchAlgorithm.srv              #   알고리즘 전환 서비스
-│
-├── urdf/                                # URDF 파일
-│   ├── kari_arm.urdf
-│   └── kari_dual_arm.urdf
-│
-├── worlds/                              # Gazebo World 파일 (20개)
-│   ├── ── 궤도 환경 ──
-│   ├── orbit.sdf                        #   기본 궤도 (무중력)
-│   ├── orbit2.world                     #   궤도 변형
-│   ├── orbit_GEO.world                  #   GEO 궤도
-│   ├── orbit_LVLH_GCO.world            #   LVLH 상대운동 + GCO
-│   ├── docking_world.sdf               #   도킹 시뮬레이션
+├── models/                                # Gazebo 모델 (51개)
+│   ├── ── 위성 ──
+│   ├── nasa_satellite ~ nasa_satellite6/  #   NASA 위성 시리즈
+│   ├── gaim_target_3u/                    #   GAiMSat 3U CubeSat
+│   ├── gaimsat_target/                    #   GAiMSat 타겟 (메시 모델)
+│   ├── intel_sat_dummy/                   #   IntelSat 더미
+│   ├── capsule/                           #   도킹 캡슐
+│   ├── iss/                               #   ISS
 │   ├── ── 로봇암 ──
-│   ├── kari_arm.sdf                     #   단일 KARI 암
-│   ├── kari_dual_arm.sdf               #   듀얼 KARI 암
+│   ├── canadarm/                          #   Canadarm2
+│   ├── kari_arm/                          #   KARI 단일 암 (7-DOF)
+│   ├── kari_arm_only/                     #   KARI 독립 암
+│   ├── kari_dual_arm/                     #   듀얼 KARI 암
+│   ├── ── CMG ──
+│   ├── cmg_testbed/                       #   듀얼 VSCMG 테스트베드
+│   ├── cubesat_cmg/                       #   CubeSat CMG
+│   ├── ── 화성 회전익기 ──
+│   ├── mars_hexacopter/                   #   화성 헥사콥터
+│   ├── mars_hexacopter_base/              #   베이스 변형
+│   ├── mars_hexacopter_cmg500/            #   CMG-500 장착형
+│   ├── mars_hexacopter_cmg500_base/       #   CMG-500 베이스
+│   ├── ── 드론 / UAV ──
+│   ├── x500/, x500_base/, x500_mars/     #   X500 쿼드콥터 시리즈
+│   ├── ardupilot_hexapod_copter/          #   ArduPilot 헥사팟
+│   ├── nasa_ingenuity/                    #   Ingenuity
+│   ├── uam_1/, uam_3/                    #   UAM
 │   ├── ── 지상 실험 ──
-│   ├── airbearing_testbed.world        #   에어베어링 테스트베드
-│   ├── experiment.world                #   실험 환경
-│   ├── gco_test.world                  #   GCO 테스트
-│   ├── gco_test_VICON.world            #   GCO + VICON
-│   ├── gco_test_control.world          #   GCO 제어 테스트
-│   ├── gco_controla.world              #   GCO ControLA
-│   ├── gco_fm_VICON.world              #   GCO 편대비행 + VICON
-│   ├── artag_test_inc_model.world      #   AR태그 테스트
-│   ├── ── 행성 환경 (spaceros_gz_demos 기반) ──
-│   ├── moon.sdf                        #   달 표면
-│   ├── mars.sdf                        #   화성 표면
-│   ├── enceladus.sdf                   #   엔셀라두스
-│   ├── simple.world                    #   기본 world
-│   └── sat.world                       #   위성 기본
+│   ├── airbearing_satellite/              #   에어베어링 테스트
+│   ├── controla_prototype_1~2/            #   ControLA 프로토타입
+│   ├── hagi/, hsr_1/                      #   HAGI, HSR
+│   ├── aruco_marker/, hokuyo/             #   센서 / 마커
+│   ├── ── 행성 / 환경 ──
+│   ├── earth/, saturn/                    #   행성
+│   ├── lunar_surface/, moon_base/         #   달
+│   ├── martian_surface/                   #   화성
+│   ├── enceladus_surface/, ocean_surface/ #   엔셀라두스
+│   └── solar_panel/, truss/, submarine/   #   기타
 │
+├── orbit_sim/                             # Python 노드 (26개 entry_points)
+│   ├── ── 위성 제어 ──
+│   ├── multi_satellite_controller.py      #   다중 위성 CSV 궤적 제어
+│   ├── multi_satellite_controller_service.py # 서비스 기반 포즈 제어 + TF
+│   ├── multi_satellite_controller_guidence.py # 유도 알고리즘
+│   ├── gco_controller.py                  #   GCO PID 제어
+│   ├── orbit_LVLH_gco.py                 #   LVLH GCO GUI
+│   ├── lvlh_sim_node.py                   #   LVLH 시뮬레이터
+│   ├── ── 암 제어 ──
+│   ├── impedance_controller.py            #   단일 암 임피던스
+│   ├── dual_arm_impedance_controller.py   #   듀얼 암 임피던스
+│   ├── force_torque_controller.py         #   힘/토크 GUI 제어
+│   ├── torque_publisher_node.py           #   토크 퍼블리셔
+│   ├── ── 센서 / 비전 ──
+│   ├── aruco_detector.py                  #   ArUco 검출 + PnP
+│   ├── aruco_simulator.py                 #   ArUco 시뮬레이터
+│   ├── gazebo_aruco_controller.py         #   ArUco 기반 포즈 제어
+│   ├── imu_visualizer.py                  #   IMU 시각화
+│   ├── stereo_test_gui.py                 #   스테레오 깊이 분석 GUI
+│   ├── pose_control_camtest.py            #   카메라 포즈 GUI
+│   ├── ── LiDAR ──
+│   ├── lidar_bridge.py                    #   LiDAR 브리지
+│   ├── laser_to_pointcloud.py             #   레이저→포인트클라우드
+│   ├── lidar_orbit_scanner.py             #   궤도 스캐너
+│   ├── pointcloud_mapper.py              #   3D 포인트클라우드 누적 매퍼
+│   ├── ── CMG ──
+│   ├── cmg_testbed_commander.py           #   CMG 테스트베드 GUI
+│   ├── cmg_testbed_scenario.py            #   CMG 시나리오 실행
+│   ├── cubesat_cmg_commander.py           #   CubeSat CMG GUI
+│   ├── cubesat_cmg_controller.py          #   CubeSat CMG 제어
+│   ├── mars_hexacopter_cmg_commander.py   #   화성 헥사콥터 CMG GUI
+│   └── http_ros_bridge.py                #   HTTP↔ROS 브리지
+│
+├── scripts/                               # 테스트 / 유틸리티
+├── srv/SwitchAlgorithm.srv                # 알고리즘 전환 서비스
+├── urdf/                                  # URDF (KARI 암)
+├── worlds/                                # Gazebo World 파일 (31개)
 ├── setup.py
 ├── setup.cfg
-├── package.xml
-└── resource/orbit_sim
+└── package.xml
 ```
 
 ---
 
-## 10. 주요 ROS 2 토픽 및 명령어 레퍼런스
+## 관련 패키지
 
-### 10.1 듀얼암 도킹 시뮬레이션 토픽
+| 패키지 | 설명 |
+|--------|------|
+| [gz_dvs_plugin](https://github.com/ndh8205/gz_dvs_plugin) | DVS 이벤트 카메라 Gazebo 플러그인 (DAVIS346 에뮬레이션) |
+| [Space_SLAM](https://github.com/ndh8205) | MATLAB 기반 항법 필터 / SLAM 알고리즘 연구 |
+
+---
+
+## 의존성
+
+### 시스템
+- Ubuntu 24.04 (WSL2)
+- ROS 2 Jazzy Desktop
+- Gazebo Harmonic
+- NVIDIA GPU + D3D12 렌더링
+
+### ROS 패키지
+```
+ros-jazzy-ros-gz  ros-jazzy-gz-ros2-control  ros-jazzy-moveit
+ros-jazzy-ros2-control  ros-jazzy-ros2-controllers
+ros-jazzy-joint-state-publisher  ros-jazzy-xacro
+ros-jazzy-robot-state-publisher  ros-jazzy-controller-manager
+ros-jazzy-slam-toolbox  ros-jazzy-navigation2  ros-jazzy-cv-bridge
+```
+
+### Python
+```
+numpy  scipy  matplotlib  opencv-python  tkinter
+```
+
+---
+
+## 주요 ROS 2 토픽
 
 | 토픽 | 타입 | 용도 |
 |------|------|------|
-| `/target_pose_L` | `geometry_msgs/PoseStamped` | 왼팔 목표 위치 |
-| `/target_pose_R` | `geometry_msgs/PoseStamped` | 오른팔 목표 위치 |
-| `/effort_controller_L/commands` | `std_msgs/Float64MultiArray` | 왼팔 토크 명령 (7 joints) |
-| `/effort_controller_R/commands` | `std_msgs/Float64MultiArray` | 오른팔 토크 명령 (7 joints) |
-| `/joint_states` | `sensor_msgs/JointState` | 전체 관절 상태 |
-
-### 10.2 Gazebo 네이티브 토픽 (gz topic)
-
-| 토픽 | 용도 |
-|------|------|
-| `/world/kari_arm_world/model/kari_arm/joint_state` | Gazebo 관절 상태 |
-| `/world/kari_arm_world/pose/info` | 모델 pose 정보 |
-| `/model/kari_arm/joint/joint1/cmd_force` | 관절 토크 직접 인가 |
-
-### 10.3 자주 사용하는 명령어
-
-**목표 위치 퍼블리시 (듀얼 암):**
-```bash
-# 왼팔
-ros2 topic pub /target_pose_L geometry_msgs/msg/PoseStamped \
-  "{header: {frame_id: 'world'}, pose: {position: {x: 2.5, y: 0.13, z: 0.0}, \
-  orientation: {w: 0.7071, x: -0.7071, y: 0.0, z: 0.0}}}" --once
-
-# 오른팔
-ros2 topic pub /target_pose_R geometry_msgs/msg/PoseStamped \
-  "{header: {frame_id: 'world'}, pose: {position: {x: 2.5, y: -0.13, z: 0.0}, \
-  orientation: {w: 0.7071, x: 0.7071, y: 0.0, z: 0.0}}}" --once
-```
-
-**직접 토크 인가 (단일 암):**
-```bash
-ros2 topic pub --once /effort_controller_L/commands \
-  std_msgs/msg/Float64MultiArray "{data: [5.0, 0, 0, 0, 0, 0, 0]}"
-```
-
-**상태 확인:**
-```bash
-ros2 topic list | grep joint
-ros2 topic echo /joint_states --once
-ros2 control list_controllers
-ros2 node list | grep impedance
-```
-
-**Gazebo 토크 직접 인가 (ros_gz 브리지 우회):**
-```bash
-gz topic -t "/model/kari_arm/joint/joint1/cmd_force" \
-  -m gz.msgs.Double -p "data: 10.0"
-```
+| `/dvs/events` | `gz_dvs_plugin/msg/DvsEventArray` | DVS 이벤트 스트림 |
+| `/lidar/points_raw/points` | `sensor_msgs/PointCloud2` | LiDAR 포인트클라우드 |
+| `/pointcloud_map` | `sensor_msgs/PointCloud2` | 누적 3D 맵 |
+| `/target_pose_L`, `_R` | `geometry_msgs/PoseStamped` | 암 목표 위치 |
+| `/effort_controller_L/commands` | `Float64MultiArray` | 암 토크 명령 |
+| `/joint_states` | `sensor_msgs/JointState` | 관절 상태 |
 
 ---
 
-## 11. Gazebo 모델 설정 주요 사항
-
-### 11.1 무중력 환경
-World SDF에서 중력을 0으로 설정:
-```xml
-<gravity>0 0 0</gravity>
-```
-
-### 11.2 우주 배경 (검은 배경 + 조명)
-```xml
-<scene>
-  <ambient>0 0 0 1</ambient>
-  <background>0 0 0 1</background>
-</scene>
-
-<light type="directional" name="sun">
-  <direction>-1 0 -0.3</direction>
-</light>
-```
-
-### 11.3 관절 제어 플러그인 (model.sdf)
-
-**ApplyJointForce (토크 직접 인가):**
-```xml
-<plugin filename="gz-sim-apply-joint-force-system"
-        name="gz::sim::systems::ApplyJointForce">
-  <joint_name>joint1</joint_name>
-</plugin>
-```
-
-**JointStatePublisher (관절 상태 퍼블리시):**
-```xml
-<plugin filename="gz-sim-joint-state-publisher-system"
-        name="gz::sim::systems::JointStatePublisher">
-  <joint_name>joint1</joint_name>
-  <joint_name>joint2</joint_name>
-  <!-- ... -->
-</plugin>
-```
-
-**gz_ros2_control (ROS 2 제어 연동):**
-```xml
-<plugin filename="gz_ros2_control-system"
-        name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-  <parameters>/home/ndh/space_ros_ws/install/orbit_sim/share/orbit_sim/config/kari_dual_arm_controllers.yaml</parameters>
-  <ros>
-    <namespace></namespace>
-  </ros>
-</plugin>
-```
-> **주의:** `$(find orbit_sim)` 형식은 Gazebo에서 해석되지 않으므로 절대 경로 사용.
-
-### 11.4 충돌(Collision) 설정
-
-**자기 충돌 비활성화:**
-```xml
-<self_collide>false</self_collide>
-```
-
-**인접 링크 충돌 비활성화 (필수 — 관절 떨림 방지):**
-```xml
-<disable_collisions>
-  <link_pair><link1>satellite_body</link1><link2>arm_L_base</link2></link_pair>
-  <link_pair><link1>arm_L_base</link1><link2>arm_L_link1</link2></link_pair>
-  <!-- 이하 모든 인접 링크 쌍에 대해 반복 -->
-</disable_collisions>
-```
-
-### 11.5 관절 파라미터 튜닝
-무중력 환경에서 자유로운 움직임을 위해:
-```xml
-<dynamics>
-  <damping>0.0</damping>
-  <friction>0.0</friction>
-</dynamics>
-<limit>
-  <lower>-1e16</lower>
-  <upper>1e16</upper>
-  <velocity>1000</velocity>
-</limit>
-```
-
-### 11.6 위성 본체 Collision 분리
-위성 본체를 본체/태양전지판/전방부로 collision 분리하여 암과의 충돌을 세밀하게 제어:
-```xml
-<!-- 중앙 본체 -->
-<collision name="satellite_body_collision">
-  <pose>0 0 0 0 0 0</pose>
-  <geometry><box><size>2.0 2.4 2.4</size></box></geometry>
-</collision>
-
-<!-- 태양전지판 Left -->
-<collision name="satellite_panel_L_collision">
-  <pose>0 3.05 0 0 0 0</pose>
-  <geometry><box><size>2.0 3.05 0.05</size></box></geometry>
-</collision>
-
-<!-- 전방부 (암 장착부) -->
-<collision name="satellite_front_collision">
-  <pose>1.575 0 0 0 0 0</pose>
-  <geometry><box><size>0.8 1.8 1.8</size></box></geometry>
-</collision>
-```
-
-### 11.7 물리 엔진 설정
-```xml
-<physics name="default_physics" type="dart">
-  <max_step_size>0.001</max_step_size>
-  <real_time_factor>1.0</real_time_factor>
-</physics>
-```
-> `type="dart"`가 무중력 환경에서 안정적. `ode`보다 6DOF 제어에 적합.
-
----
-
-## 12. 트러블슈팅
-
-### 12.1 빌드 관련
+## 트러블슈팅
 
 | 증상 | 해결 |
 |------|------|
-| `qt_gui` 패키지 충돌 | src에 `qt_gui_core` 소스가 있으면 발생. orbit_sim만 남기면 해결 |
-| `warehouse_ros_mongo` 의존성 | src에 `demos`가 있을 때만 발생. orbit_sim만 남기면 해결 |
-
-### 12.2 GPU 렌더링 관련
-
-| 증상 | 해결 |
-|------|------|
-| `OpenGL renderer: llvmpipe` (소프트웨어 렌더링) | `.bashrc`에 `GALLIUM_DRIVER=d3d12` 확인 |
-| `nvidia-smi` 동작하나 GL 안 잡힘 | `sudo apt install --reinstall libegl-mesa0 libgl1-mesa-dri` |
-| `.bashrc`에 중복 환경변수 | `sed -i '/변수명/d' ~/.bashrc` 로 정리 후 재설정 |
-| Gazebo GUI 검은 화면 | `nvidia-smi`로 드라이버 확인, WSL 커널 업데이트 |
-
-### 12.3 모델/시뮬레이션 관련
-
-| 증상 | 해결 |
-|------|------|
-| 모델 로딩 안 됨 | `echo $GZ_SIM_RESOURCE_PATH` 확인, models 디렉토리 포함 여부 |
-| mesh 파일 못 찾음 | model.sdf에서 `package://` 대신 상대경로 `meshes/xxx.stl` 사용 |
-| 관절 떨림/폭발 | `<self_collide>false` + `<disable_collisions>` 인접 링크 설정 |
-| gz_ros2_control 플러그인 안 로드 | `GZ_SIM_SYSTEM_PLUGIN_PATH`에 `/opt/ros/jazzy/lib` 추가 |
-| controller yaml 경로 오류 | `$(find ...)` 대신 절대 경로 사용 |
-
-### 12.4 ROS 통신 관련
-
-| 증상 | 해결 |
-|------|------|
-| 토픽이 안 보임 (다른 터미널) | `source install/setup.bash` 확인 |
-| DDS 통신 문제 | `export RMW_IMPLEMENTATION=rmw_fastrtps_cpp` |
-| ROS_DOMAIN_ID 충돌 | `export ROS_DOMAIN_ID=0` (기본값) |
+| GPU 소프트웨어 렌더링 | `GALLIUM_DRIVER=d3d12` 확인 |
+| 모델 로딩 실패 | `GZ_SIM_RESOURCE_PATH` 확인 |
+| DVS 플러그인 로드 실패 | `GZ_SIM_SYSTEM_PLUGIN_PATH`에 gz_dvs_plugin lib 경로 추가 |
+| 관절 떨림/폭발 | `<self_collide>false` + `<disable_collisions>` 설정 |
+| 프로세스 정리 안 됨 | `bash ~/kill_sim.sh` |
 
 ---
 
-## 13. 향후 확장 방향
-
-| 항목 | 설명 | 상태 |
-|------|------|------|
-| Space_SLAM 필터 이식 | MATLAB에서 검증된 EKF/UKF/PF 기반 항법 필터를 ROS 2 노드로 이식 | 예정 |
-| 3DGS 밀집 표현 | 3D Gaussian Splatting 기반 밀집 장면 표현을 ROS 2에 통합 | 예정 |
-| 자율 도킹 시퀀스 | 비전 기반 자세추정 → GNC → 암 제어 파이프라인 통합 | 예정 |
-| 실제 하드웨어 연동 | 에어베어링 테스트베드에서의 실험 검증 | 예정 |
-
-> 연관 프로젝트: `D:\space_vision\Space_SLAM` (Windows, MATLAB)에서 알고리즘 연구 → orbit_sim에서 ROS 2 구현
-
----
-
-## 부록: 참고 자료
-
-- [ROS 2 Jazzy 공식 문서](https://docs.ros.org/en/jazzy/)
-- [Gazebo Harmonic 공식 문서](https://gazebosim.org/docs/harmonic)
-- [Space ROS 공식 리포지토리](https://github.com/space-ros)
-- [ros_gz 브리지 문서](https://github.com/gazebosim/ros_gz)
-- [WSL2 GPU 가속 설정](https://learn.microsoft.com/windows/wsl/tutorials/gpu-compute)
-- [spaceros_gz_demos (NASA Space ROS)](https://github.com/david-dorf/spaceros_gz_demos)
-
----
-
-*최종 업데이트: 2026-02-23*
+*최종 업데이트: 2026-03-06*
