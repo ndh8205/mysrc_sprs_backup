@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mars Hexacopter + Mini CMG 500 — MulticopterMotorModel configuration
+  All rotor parameters from scripts/mars_hexacopter_design_calc.py (V1~V5 verified)
+  CMG parameters from Mini CMG 500 spec (Momentum Space)
+
+  motorConstant  = 1.854561e-05  [CT × ρ × π × R⁴]
+  momentConstant = 0.0590         [(CQ/CT) × R, FM=0.50]
+  maxRotVelocity = 500.0 rad/s    [tip Mach 0.91 < 1.0]
+
+  Hover: ω=409 rad/s (3904 RPM), Vtip=180 m/s, Mach=0.74
+  T/W = 1.50 at max RPM
+
+  CMG: Mini CMG 500, MOI=1.603e-4 kg·m², 30000 RPM, 0.5 Nms
+  Ref: Yang et al., Sensors 2024, 24, 8212
+-->
+<sdf version='1.9'>
+  <model name='mars_hexacopter_cmg500'>
+    <include merge='true'>
+      <uri>model://mars_hexacopter_cmg500_base</uri>
+    </include>
+
+    <!-- Rotor 0: 0° CCW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_0_joint</jointName>
+      <linkName>rotor_0</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- Rotor 1: 60° CW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_1_joint</jointName>
+      <linkName>rotor_1</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>1</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- Rotor 2: 120° CCW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_2_joint</jointName>
+      <linkName>rotor_2</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>2</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- Rotor 3: 180° CW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_3_joint</jointName>
+      <linkName>rotor_3</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>3</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- Rotor 4: 240° CCW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_4_joint</jointName>
+      <linkName>rotor_4</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>4</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- Rotor 5: 300° CW -->
+    <plugin filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_5_joint</jointName>
+      <linkName>rotor_5</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>500.0</maxRotVelocity>
+      <motorConstant>1.854561e-05</motorConstant>
+      <momentConstant>0.0590</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>5</motorNumber>
+      <rotorDragCoefficient>2.0606e-06</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-07</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- ========== CMG JointController plugins ========== -->
+    <!-- use_force_commands=false: kinematic velocity, DART computes gyroscopic effects -->
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg1_gimbal_joint</joint_name>
+      <topic>/mars_hexacopter_cmg500/cmg1_gimbal/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg1_wheel_joint</joint_name>
+      <topic>/mars_hexacopter_cmg500/cmg1_wheel/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg2_gimbal_joint</joint_name>
+      <topic>/mars_hexacopter_cmg500/cmg2_gimbal/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg2_wheel_joint</joint_name>
+      <topic>/mars_hexacopter_cmg500/cmg2_wheel/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+      <joint_name>cmg1_gimbal_joint</joint_name>
+      <joint_name>cmg1_wheel_joint</joint_name>
+      <joint_name>cmg2_gimbal_joint</joint_name>
+      <joint_name>cmg2_wheel_joint</joint_name>
+      <topic>/mars_hexacopter_cmg500/joint_states</topic>
+      <update_rate>100</update_rate>
+    </plugin>
+
+  </model>
+</sdf>

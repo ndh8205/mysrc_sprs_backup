@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="cubesat_cmg_world">
+
+    <!-- DART physics: 1ms step for gyroscopic accuracy -->
+    <physics name="cmg_physics" type="dart">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <gravity>0 0 0</gravity>
+
+    <scene>
+      <ambient>0.4 0.4 0.45 1</ambient>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <!-- Main light: front-top-right, bright -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>5 5 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.95 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.4 -0.4 -0.8</direction>
+    </light>
+
+    <!-- Fill light: back-left, softer -->
+    <light type="directional" name="fill">
+      <cast_shadows>false</cast_shadows>
+      <pose>-5 -5 5 0 0 0</pose>
+      <diffuse>0.4 0.4 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>0.4 0.4 -0.6</direction>
+    </light>
+
+    <!-- Camera: isometric view, close to model -->
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>0.35 0.35 0.25 0 0.35 -2.36</pose>
+      </camera>
+    </gui>
+
+    <!-- System plugins -->
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-imu-system"
+            name="gz::sim::systems::Imu"/>
+
+    <!-- CubeSat with CMGs -->
+    <include>
+      <uri>model://cubesat_cmg</uri>
+      <name>cubesat_cmg</name>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+  </world>
+</sdf>

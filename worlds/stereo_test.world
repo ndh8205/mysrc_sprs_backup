@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="stereo_test_world">
+    <physics name="orbital_physics" type="dart" default="true">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <dart>
+        <solver>
+          <solver_type>dantzig</solver_type>
+          <lcp_max_iterations>2000</lcp_max_iterations>
+          <lcp_tolerance>1e-12</lcp_tolerance>
+        </solver>
+        <collision_detector>fcl</collision_detector>
+        <constraints>
+          <cfm>1e-12</cfm>
+          <erp>0.9</erp>
+          <contact_surface_layer>1e-6</contact_surface_layer>
+        </constraints>
+      </dart>
+    </physics>
+
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>10.5 -10.5 10.3 0.0 0.3 2.35</camera_pose>
+      </plugin>
+
+      <plugin filename="ImageDisplay" name="Stereo Left">
+        <gz-gui>
+          <title>Stereo Left</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>/stereo/left/image_raw</topic>
+        <refresh_rate_hz>5</refresh_rate_hz>
+      </plugin>
+
+      <plugin filename="ImageDisplay" name="Stereo Right">
+        <gz-gui>
+          <title>Stereo Right</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>/stereo/right/image_raw</topic>
+        <refresh_rate_hz>5</refresh_rate_hz>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>-8000 -2000 4000 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.8 0.8 0.8 1</specular>
+      <direction>0.8 0.2 -0.4</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <!-- Chief/Target: 3U CubeSat (원점, 고정) -->
+    <include>
+      <uri>model://gaim_target_3u</uri>
+      <name>chief_target</name>
+      <pose>0 0 0 0 0 0</pose>
+      <static>true</static>
+    </include>
+
+    <!-- Deputy/Observer: GaimSat 6U (스테레오 카메라 탑재) -->
+    <include>
+      <uri>model://gaimsat_target</uri>
+      <name>deputy_gaimsat</name>
+      <pose>-150 0 0 0 0 0</pose>
+    </include>
+
+    <!-- System plugins -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics">
+      <engine>
+        <filename>gz-physics-dartsim-plugin</filename>
+      </engine>
+    </plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="libgz-sim-apply-link-wrench-system.so" name="gz::sim::systems::ApplyLinkWrench"/>
+  </world>
+</sdf>

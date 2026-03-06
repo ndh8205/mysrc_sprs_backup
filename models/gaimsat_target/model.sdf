@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="gaimsat_target">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+
+    <!-- Odometry Publisher -->
+    <plugin filename="libgz-sim-odometry-publisher-system.so"
+            name="gz::sim::systems::OdometryPublisher">
+      <odom_topic>/model/gaimsat_target/odometry</odom_topic>
+      <odom_frame>stereo_test_world</odom_frame>
+      <robot_base_frame>gaimsat_target</robot_base_frame>
+      <update_rate>50</update_rate>
+    </plugin>
+
+    <plugin filename="gz-sim-velocity-control-system"
+            name="gz::sim::systems::VelocityControl">
+      <link_name>gaimsat_link</link_name>
+      <linear_velocity>true</linear_velocity>
+      <angular_velocity>true</angular_velocity>
+    </plugin>
+
+    <link name="gaimsat_link">
+      <inertial>
+        <mass>10.5</mass>
+        <inertia>
+          <ixx>0.055</ixx>
+          <iyy>0.104</iyy>
+          <izz>0.127</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://gaimsat_target/meshes/gaimsat_mid.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <box><size>0.60 0.76 0.37</size></box>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ===== Stereo Camera (1 pair, on +X face, looking +X) ===== -->
+    <!-- Baseline 70mm along Y axis, within 1U tuna-can (10cm) -->
+    <link name="stereo_left_link">
+      <pose relative_to="gaimsat_link">0.31 -0.035 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx><iyy>1e-6</iyy><izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="stereo_left" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>1.082</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>5</update_rate>
+        <visualize>false</visualize>
+        <topic>/stereo/left/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="stereo_left_joint" type="fixed">
+      <parent>gaimsat_link</parent>
+      <child>stereo_left_link</child>
+    </joint>
+
+    <link name="stereo_right_link">
+      <pose relative_to="gaimsat_link">0.31 0.035 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx><iyy>1e-6</iyy><izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <sensor name="stereo_right" type="camera">
+        <pose/>
+        <camera>
+          <horizontal_fov>1.082</horizontal_fov>
+          <image>
+            <width>1024</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50000</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>5</update_rate>
+        <visualize>false</visualize>
+        <topic>/stereo/right/image_raw</topic>
+      </sensor>
+    </link>
+    <joint name="stereo_right_joint" type="fixed">
+      <parent>gaimsat_link</parent>
+      <child>stereo_right_link</child>
+    </joint>
+
+  </model>
+</sdf>

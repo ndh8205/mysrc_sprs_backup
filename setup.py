@@ -60,10 +60,17 @@ setup(
             'lvlh_sim_node = orbit_sim.lvlh_sim_node:main',
             'lidar_bridge = orbit_sim.lidar_bridge:main',
             'laser_to_pointcloud = orbit_sim.laser_to_pointcloud:main',
+            'lidar_orbit_scanner = orbit_sim.lidar_orbit_scanner:main',
+            'pointcloud_mapper = orbit_sim.pointcloud_mapper:main',
             'impedance_controller = orbit_sim.impedance_controller:main',
             'dual_arm_impedance_controller = orbit_sim.dual_arm_impedance_controller:main',
             'http_ros_bridge = orbit_sim.http_ros_bridge:main',
-
+            'cubesat_cmg_controller = orbit_sim.cubesat_cmg_controller:main',
+            'cmg_testbed_commander = orbit_sim.cmg_testbed_commander:main',
+            'cmg_testbed_scenario = orbit_sim.cmg_testbed_scenario:main',
+            'cubesat_cmg_commander = orbit_sim.cubesat_cmg_commander:main',
+            'stereo_test_gui = orbit_sim.stereo_test_gui:main',
+            'mars_hexacopter_cmg_commander = orbit_sim.mars_hexacopter_cmg_commander:main',
         ],
     },
 )

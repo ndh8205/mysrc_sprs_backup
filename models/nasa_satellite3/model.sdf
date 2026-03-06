@@ -53,8 +53,8 @@
         <camera>
           <horizontal_fov>0.7</horizontal_fov>
           <image>
-            <width>640</width>
-            <height>480</height>
+            <width>346</width>
+            <height>260</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -73,7 +73,7 @@
 
         </camera>
         <always_on>true</always_on>
-        <update_rate>15</update_rate>
+        <update_rate>60</update_rate>
         <visualize>true</visualize>
         <topic>nasa_satellite3/camera</topic>
       </sensor>
@@ -226,28 +226,29 @@
         <visualize>true</visualize>
       </sensor-->
 
-      <sensor name="lidar_3d" type="gpu_lidar">  <!-- gpu_ray 대신 gpu_lidar -->
+      <!-- DragonEye/TriDAR급 우주 근접운용 LiDAR -->
+      <sensor name="lidar_3d" type="gpu_lidar">
         <pose>-0.11677 0.5224 0.2269 0 0 1.5708</pose>
         <topic>lidar/points_raw</topic>
         <update_rate>10</update_rate>
-        <lidar>  <!-- ray 대신 lidar -->
+        <lidar>
           <scan>
             <horizontal>
-              <samples>360</samples>
+              <samples>240</samples>
               <resolution>1</resolution>
-              <min_angle>-3.14159</min_angle>
-              <max_angle>3.14159</max_angle>
+              <min_angle>-0.5236</min_angle>
+              <max_angle>0.5236</max_angle>
             </horizontal>
             <vertical>
-              <samples>16</samples>
+              <samples>64</samples>
               <resolution>1</resolution>
-              <min_angle>-0.26</min_angle>
-              <max_angle>0.26</max_angle>
+              <min_angle>-0.5236</min_angle>
+              <max_angle>0.5236</max_angle>
             </vertical>
           </scan>
           <range>
-            <min>0.1</min>
-            <max>30.0</max>
+            <min>0.5</min>
+            <max>200.0</max>
             <resolution>0.01</resolution>
           </range>
         </lidar>

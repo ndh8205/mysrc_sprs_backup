@@ -66,6 +66,36 @@
         <topic>nasa_satellite5/camera</topic>
       </sensor>
 
+      <!-- 3D LiDAR (카메라와 동일 방향, 10cm 위) -->
+      <sensor name="lidar_3d" type="gpu_lidar">
+        <pose>0.6153 0.4367 0.2405 0 0 1.5708</pose>
+        <topic>nasa_satellite5/lidar</topic>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>240</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.5236</min_angle>
+              <max_angle>0.5236</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>64</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.5236</min_angle>
+              <max_angle>0.5236</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.5</min>
+            <max>200</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+      </sensor>
+
       <!-- IMU 센서 유지 -->
       <sensor name="imu_sensor" type="imu">
         <pose>0 0 0 0 0 0</pose>

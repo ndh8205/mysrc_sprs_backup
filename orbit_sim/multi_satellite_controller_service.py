@@ -8,9 +8,10 @@ import math
 import threading
 import numpy as np
 from ros_gz_interfaces.srv import SetEntityPose
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, TransformStamped
 from scipy.spatial.transform import Rotation
 from scipy.interpolate import interp1d
+from tf2_ros import TransformBroadcaster, StaticTransformBroadcaster
 
 class MultiSatelliteControllerService(Node):
     def __init__(self):
@@ -24,6 +25,8 @@ class MultiSatelliteControllerService(Node):
         self.declare_parameter('csv_file3', '')
         self.declare_parameter('csv_data_rate', 50.0)  # CSV 데이터의 실제 샘플링 레이트 (Hz)
         self.declare_parameter('time_scale', 1.0)  # 시간 스케일 팩터 (1.0 = 실시간, 2.0 = 2배 빠르게)
+        self.declare_parameter('tf_entity', '')  # TF 발행할 위성 이름 (예: 'nasa_satellite3')
+        self.declare_parameter('tf_lidar_frame', '')  # LiDAR 프레임 (예: 'nasa_satellite3/nasa_satellite_link/lidar_3d')
         
         # 파라미터 읽기
         self.update_rate = self.get_parameter('update_rate').get_parameter_value().double_value
@@ -37,8 +40,31 @@ class MultiSatelliteControllerService(Node):
         # CSV 데이터 간격 계산 (초 단위)
         self.csv_time_step = 1.0 / self.csv_data_rate if self.csv_data_rate > 0 else 0.02
         
+        self.tf_entity = self.get_parameter('tf_entity').get_parameter_value().string_value
+        self.tf_lidar_frame = self.get_parameter('tf_lidar_frame').get_parameter_value().string_value
+
         self.get_logger().info(f'CSV 데이터 간격: {self.csv_time_step}초 ({self.csv_data_rate}Hz)')
         self.get_logger().info(f'시간 스케일 팩터: {self.time_scale}x')
+
+        # TF broadcaster (tf_entity가 지정된 경우에만 활성화)
+        self.tf_broadcaster = None
+        if self.tf_entity:
+            self.tf_broadcaster = TransformBroadcaster(self)
+            self.get_logger().info(f'TF 발행 활성화: odom -> base_link ({self.tf_entity})')
+            if self.tf_lidar_frame:
+                static_broadcaster = StaticTransformBroadcaster(self)
+                static_tf = TransformStamped()
+                static_tf.header.stamp = self.get_clock().now().to_msg()
+                static_tf.header.frame_id = 'base_link'
+                static_tf.child_frame_id = self.tf_lidar_frame
+                # nasa_satellite3 SDF LiDAR pose: (-0.11677, 0.5224, 0.2269, 0, 0, π/2)
+                static_tf.transform.translation.x = -0.11677
+                static_tf.transform.translation.y = 0.5224
+                static_tf.transform.translation.z = 0.2269
+                static_tf.transform.rotation.z = 0.7071068
+                static_tf.transform.rotation.w = 0.7071068
+                static_broadcaster.sendTransform(static_tf)
+                self.get_logger().info(f'Static TF: base_link -> {self.tf_lidar_frame}')
         
         # 위성 CSV 파일 경로 매핑 구성  
         self.satellites = {}
@@ -329,6 +355,21 @@ class MultiSatelliteControllerService(Node):
                 # 서비스 비동기 호출
                 future = self.set_pose_client.call_async(req)
                 future.add_done_callback(lambda fut, name=sat_name: self.handle_set_pose_result(fut, name))
+
+                # TF 발행 (지정된 위성에 대해서만)
+                if self.tf_broadcaster and sat_name == self.tf_entity:
+                    t = TransformStamped()
+                    t.header.stamp = current_time_obj.to_msg()
+                    t.header.frame_id = 'odom'
+                    t.child_frame_id = 'base_link'
+                    t.transform.translation.x = x
+                    t.transform.translation.y = y
+                    t.transform.translation.z = z
+                    t.transform.rotation.x = qx
+                    t.transform.rotation.y = qy
+                    t.transform.rotation.z = qz
+                    t.transform.rotation.w = qw
+                    self.tf_broadcaster.sendTransform(t)
                 
             except Exception as e:
                 self.get_logger().error(f'Error updating {sat_name} position: {e}')

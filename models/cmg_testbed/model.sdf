@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="cmg_testbed">
+    <!--
+      CMG dynamics testbed — cubesat_cmg와 동일 구조
+      All parameters from MATLAB CMG_sim.m (150mm layout)
+      use_force_commands=false: kinematic velocity, DART computes gyroscopic effects
+    -->
+    <self_collide>false</self_collide>
+
+    <!-- ========== BODY: 150mm cube ========== -->
+    <!-- MATLAB: body_size=[0.15,0.15,0.15], m_sat=3.5 kg -->
+    <!-- Body mass = 3.5 - 2*(0.05 gimbal + 0.1 wheel) = 3.2 kg -->
+    <link name="body">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>3.2</mass>
+        <inertia>
+          <ixx>0.012</ixx> <iyy>0.012</iyy> <izz>0.012</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="body_visual">
+        <geometry><box><size>0.15 0.15 0.15</size></box></geometry>
+        <material>
+          <ambient>0.5 0.5 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.7 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+        <transparency>0.7</transparency>
+      </visual>
+
+      <!-- IMU sensor (100Hz, no noise) -->
+      <sensor name="imu" type="imu">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <topic>cmg_testbed/imu</topic>
+        <imu>
+          <angular_velocity>
+            <x><noise type="none"/></x>
+            <y><noise type="none"/></y>
+            <z><noise type="none"/></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="none"/></x>
+            <y><noise type="none"/></y>
+            <z><noise type="none"/></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </link>
+
+    <!-- ========== CMG 1: +X side ========== -->
+    <!-- MATLAB: pos=[0.05;0;0], a=[0;1;0], s0=[1;0;0] -->
+    <link name="cmg1_gimbal">
+      <pose relative_to="body">0.05 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>1e-6</ixx> <iyy>1e-6</iyy> <izz>1e-6</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="cmg1_gimbal_visual">
+        <pose>0 0 0 1.5708 0 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.04</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.9 1</ambient>
+          <diffuse>0.3 0.3 1.0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <link name="cmg1_wheel">
+      <pose relative_to="cmg1_gimbal">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>3.65e-5</ixx> <iyy>2e-5</iyy> <izz>2e-5</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="cmg1_wheel_visual">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.008</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.2 0.2 1</ambient>
+          <diffuse>1.0 0.3 0.3 1</diffuse>
+        </material>
+      </visual>
+      <!-- Rotation stripes: cross pattern on wheel face (spin axis = X) -->
+      <visual name="cmg1_stripe_y">
+        <geometry><box><size>0.009 0.034 0.003</size></box></geometry>
+        <material>
+          <ambient>1.0 1.0 0.2 1</ambient>
+          <diffuse>1.0 1.0 0.3 1</diffuse>
+        </material>
+      </visual>
+      <visual name="cmg1_stripe_z">
+        <geometry><box><size>0.009 0.003 0.034</size></box></geometry>
+        <material>
+          <ambient>1.0 1.0 1.0 1</ambient>
+          <diffuse>1.0 1.0 1.0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- ========== CMG 2: -X side ========== -->
+    <!-- MATLAB: pos=[-0.05;0;0], a=[0;1;0], s0=[1;0;0] -->
+    <link name="cmg2_gimbal">
+      <pose relative_to="body">-0.05 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>1e-6</ixx> <iyy>1e-6</iyy> <izz>1e-6</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="cmg2_gimbal_visual">
+        <pose>0 0 0 1.5708 0 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.04</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.9 0.2 1</ambient>
+          <diffuse>0.3 1.0 0.3 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <link name="cmg2_wheel">
+      <pose relative_to="cmg2_gimbal">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>3.65e-5</ixx> <iyy>2e-5</iyy> <izz>2e-5</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="cmg2_wheel_visual">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.008</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.2 0.2 1</ambient>
+          <diffuse>1.0 0.3 0.3 1</diffuse>
+        </material>
+      </visual>
+      <!-- Rotation stripes: cross pattern on wheel face (spin axis = X) -->
+      <visual name="cmg2_stripe_y">
+        <geometry><box><size>0.009 0.034 0.003</size></box></geometry>
+        <material>
+          <ambient>1.0 1.0 0.2 1</ambient>
+          <diffuse>1.0 1.0 0.3 1</diffuse>
+        </material>
+      </visual>
+      <visual name="cmg2_stripe_z">
+        <geometry><box><size>0.009 0.003 0.034</size></box></geometry>
+        <material>
+          <ambient>1.0 1.0 1.0 1</ambient>
+          <diffuse>1.0 1.0 1.0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- ========== JOINTS ========== -->
+    <joint name="cmg1_gimbal_joint" type="revolute">
+      <parent>body</parent>
+      <child>cmg1_gimbal</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower> <upper>1e16</upper>
+          <effort>10</effort> <velocity>2.0</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <joint name="cmg1_wheel_joint" type="revolute">
+      <parent>cmg1_gimbal</parent>
+      <child>cmg1_wheel</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1e16</lower> <upper>1e16</upper>
+          <effort>1</effort> <velocity>2100</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <joint name="cmg2_gimbal_joint" type="revolute">
+      <parent>body</parent>
+      <child>cmg2_gimbal</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower> <upper>1e16</upper>
+          <effort>10</effort> <velocity>2.0</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <joint name="cmg2_wheel_joint" type="revolute">
+      <parent>cmg2_gimbal</parent>
+      <child>cmg2_wheel</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1e16</lower> <upper>1e16</upper>
+          <effort>1</effort> <velocity>2100</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <!-- ========== PLUGINS ========== -->
+    <!-- use_force_commands=false: kinematic velocity, DART computes gyroscopic effects -->
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg1_gimbal_joint</joint_name>
+      <topic>/cmg_testbed/cmg1_gimbal/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <!-- Wheel 1: initial_velocity=0, GUI에서 RPM 설정 (급격한 spin-up 반력 방지) -->
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg1_wheel_joint</joint_name>
+      <topic>/cmg_testbed/cmg1_wheel/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg2_gimbal_joint</joint_name>
+      <topic>/cmg_testbed/cmg2_gimbal/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <!-- Wheel 2: initial_velocity=0, GUI에서 RPM 설정 -->
+    <plugin filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+      <joint_name>cmg2_wheel_joint</joint_name>
+      <topic>/cmg_testbed/cmg2_wheel/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+      <use_force_commands>false</use_force_commands>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+      <joint_name>cmg1_gimbal_joint</joint_name>
+      <joint_name>cmg1_wheel_joint</joint_name>
+      <joint_name>cmg2_gimbal_joint</joint_name>
+      <joint_name>cmg2_wheel_joint</joint_name>
+      <topic>/cmg_testbed/joint_states</topic>
+      <update_rate>100</update_rate>
+    </plugin>
+
+  </model>
+</sdf>

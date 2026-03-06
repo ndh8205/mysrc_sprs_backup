@@ -1,0 +1,83 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Value: true
+      Cell Size: 1
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 20
+      Reference Frame: odom
+
+    - Class: rviz_default_plugins/PointCloud2
+      Name: LiDAR Live
+      Enabled: true
+      Topic:
+        Value: /controla_prototype_1/lidar/points/points
+        Depth: 5
+        Reliability: Best Effort
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 0; 255; 0
+      Style: Points
+      Decay Time: 0.5
+
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 3D Map
+      Enabled: true
+      Topic:
+        Value: /map_cloud
+        Depth: 1
+        Reliability: Reliable
+        Durability: Transient Local
+      Size (Pixels): 3
+      Color Transformer: AxisColor
+      Axis: Z
+      Style: Points
+      Decay Time: 0
+
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Update Interval: 0
+
+  Global Options:
+    Background Color: 0; 0; 0
+    Fixed Frame: odom
+    Frame Rate: 30
+
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/FocusCamera
+
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 15
+      Focal Point:
+        X: 0
+        Y: 3
+        Z: 0
+      Pitch: 0.5
+      Yaw: 3.14
+      Name: Current View

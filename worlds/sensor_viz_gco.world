@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!--
+  Sensor Visualization GCO World
+  - orbit_LVLH_GCO 공전 시나리오 기반
+  - 카메라 / DVS 이벤트 카메라 / LiDAR 포인트 클라우드를 Gazebo GUI에서 직접 확인
+  - RViz 불필요
+-->
+<sdf version="1.10">
+  <world name="space_world">
+    <physics name="orbital_physics" type="dart" default="true">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <dart>
+        <solver>
+          <solver_type>dantzig</solver_type>
+          <lcp_max_iterations>2000</lcp_max_iterations>
+          <lcp_tolerance>1e-12</lcp_tolerance>
+        </solver>
+        <collision_detector>fcl</collision_detector>
+        <constraints>
+          <cfm>1e-12</cfm>
+          <erp>0.9</erp>
+          <contact_surface_layer>1e-6</contact_surface_layer>
+        </constraints>
+      </dart>
+    </physics>
+
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <background_color>0 0 0 1</background_color>
+        <camera_pose>10.5 -10.5 10.3 0.0 0.3 2.35</camera_pose>
+      </plugin>
+
+      <!-- Camera image display -->
+      <plugin filename="ImageDisplay" name="Camera View">
+        <gz-gui>
+          <title>Camera</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>nasa_satellite5/camera</topic>
+        <refresh_rate_hz>15</refresh_rate_hz>
+      </plugin>
+
+      <!-- DVS event camera visualization -->
+      <plugin filename="ImageDisplay" name="DVS View">
+        <gz-gui>
+          <title>Event Camera</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>/dvs/image</topic>
+      </plugin>
+
+      <!-- LiDAR point cloud visualization in 3D view -->
+      <plugin filename="VisualizeLidar" name="LiDAR View">
+        <gz-gui>
+          <title>LiDAR</title>
+          <property type="bool" key="showTitleBar">true</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <topic>nasa_satellite5/lidar</topic>
+      </plugin>
+    </gui>
+
+    <scene>
+      <background>0 0 0 1</background>
+      <shadows>true</shadows>
+      <grid>false</grid>
+    </scene>
+
+    <!-- 중력 0 (LVLH 좌표계에서는 중력이 이미 방정식에 포함됨) -->
+    <gravity>0 0 0</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>-8000 -2000 4000 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.8 0.8 0.8 1</specular>
+      <direction>0.8 0.2 -0.4</direction>
+      <visualize>false</visualize>
+    </light>
+
+    <!-- Chief 위성 (원점에 고정) -->
+    <include>
+      <uri>model://intel_sat_dummy</uri>
+      <name>chief_satellite</name>
+      <pose>0 0 0 0 0 0</pose>
+      <static>true</static>
+    </include>
+
+    <!-- Deputy 위성 (초기 위치: Y축 50m) -->
+    <include>
+      <uri>model://nasa_satellite5</uri>
+      <name>deputy_satellite</name>
+      <pose>0 50 0 0 0 0</pose>
+    </include>
+
+    <!-- 시스템 플러그인 -->
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="libgz-sim-physics-system.so" name="gz::sim::systems::Physics">
+      <engine>
+        <filename>gz-physics-dartsim-plugin</filename>
+      </engine>
+    </plugin>
+    <plugin filename="libgz-sim-user-commands-system.so" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="libgz-sim-scene-broadcaster-system.so" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="libgz-sim-imu-system.so" name="gz::sim::systems::Imu"/>
+
+    <!-- Force/Torque 적용을 위한 플러그인 -->
+    <plugin filename="libgz-sim-apply-link-wrench-system.so" name="gz::sim::systems::ApplyLinkWrench"/>
+
+    <!-- DVS (Event Camera) Emulator — DAVIS346 params -->
+    <plugin filename="libgz-dvs-system.so" name="gz_dvs_plugin::DvsSystem">
+      <camera_sensor_name>satellite_camera5</camera_sensor_name>
+      <ros_topic>/dvs/events</ros_topic>
+      <frame_id>nasa_satellite5/camera</frame_id>
+      <pos_threshold>0.13</pos_threshold>
+      <neg_threshold>0.20</neg_threshold>
+      <sigma_threshold>0.03</sigma_threshold>
+      <lpf_tau>0.01</lpf_tau>
+      <shot_noise_rate>0.1</shot_noise_rate>
+      <leak_rate>0.01</leak_rate>
+      <refractory_period>0.001</refractory_period>
+      <publish_visualization>true</publish_visualization>
+      <viz_topic>/dvs/image</viz_topic>
+    </plugin>
+  </world>
+</sdf>
